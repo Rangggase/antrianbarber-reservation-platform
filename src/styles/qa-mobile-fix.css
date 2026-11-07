@@ -1,0 +1,54 @@
+/* v2.1e QA hotfix 01 — focuses on intrinsic sizing and tappable mobile navigation.
+   Import this file AFTER premium-v21d.css in src/App.tsx.
+   Does not hide overflow with overflow-x: hidden. */
+@media (max-width: 760px) {
+  .site-header .container-shell {
+    position: relative;
+    min-width: 0;
+    max-width: 100%;
+    gap: 10px;
+  }
+  .site-header .brand {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .site-header .brand > span:last-child {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .site-header .mobile-menu-button {
+    position: relative;
+    z-index: 3;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+  }
+  .hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hero-grid > *,
+  .hero-copy,
+  .home-quicklinks-grid,
+  .home-quicklinks-grid > *,
+  .home-quicklinks-heading > *,
+  .footer-grid > * {
+    min-width: 0;
+  }
+  .hero-copy h1 {
+    max-width: 100%;
+    font-size: clamp(38px, 10.4vw, 60px);
+    overflow-wrap: break-word;
+  }
+  .home-quicklink-card strong {
+    overflow-wrap: break-word;
+  }
+}

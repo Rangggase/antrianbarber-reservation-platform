@@ -1,0 +1,24 @@
+/* Multi-page additions. Existing v2.1 styles stay unchanged. */
+.nav-link-active, .mobile-navigation .nav-link-active { color: #e9c38e !important; }
+.nav-link-active { text-decoration: underline; text-underline-offset: 9px; text-decoration-thickness: 1px; }
+.home-quicklinks { background:#f7f6f1; padding:92px 0 110px; color:#142720; }
+.home-quicklinks-heading { display:flex; justify-content:space-between; align-items:end; gap:30px; margin-bottom:35px; }
+.home-quicklinks-heading h2 { font: 500 clamp(35px, 4vw, 59px)/1.12 Georgia,serif; letter-spacing:-.04em; margin:18px 0 0; }
+.home-quicklinks-heading h2 em { color:#a5774d; font-weight:400; }
+.home-quicklinks-heading p { max-width:350px; color:#708176; font-size:14px; line-height:1.8; }
+.home-quicklinks-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.home-quicklink-card { background:#fff; border:1px solid #e7e3d8; padding:34px; color:#19372a; min-height:266px; display:flex; flex-direction:column; align-items:flex-start; position:relative; transition:transform .2s,box-shadow .2s; }
+.home-quicklink-card:hover { transform:translateY(-4px); box-shadow:0 16px 36px #253d251c; }
+.home-quicklink-icon { color:#a47b50; margin-bottom:24px; }
+.home-quicklink-overline { font-size:10px; font-weight:800; letter-spacing:.17em; color:#9a7956; }
+.home-quicklink-card strong { font: 500 31px/1.2 Georgia,serif; letter-spacing:-.03em; margin:9px 0 13px; }
+.home-quicklink-card>span:not(.home-quicklink-icon):not(.home-quicklink-overline) { font-size:13px; color:#687b6d; line-height:1.6; }
+.home-quicklink-featured { background:#17372c; border-color:#17372c; color:#fff; }
+.home-quicklink-featured .home-quicklink-icon,.home-quicklink-featured .home-quicklink-overline{color:#e7be83}
+.home-quicklink-featured>span:not(.home-quicklink-icon):not(.home-quicklink-overline){color:#d0dbcf}
+.home-quicklink-arrow { position:absolute; top:35px; right:35px; }
+.notfound-page { min-height:65vh; display:flex; align-items:center; }
+.notfound-page h1 { font:500 clamp(50px,6vw,80px)/1.1 Georgia,serif; margin:24px 0 18px; letter-spacing:-.045em; }
+.notfound-page h1 em { color:#aa7f51; font-weight:400; }
+.notfound-page p { color:#6e8175; line-height:1.8; margin-bottom:28px; }
+@media(max-width:760px){.home-quicklinks { padding:70px 0; }.home-quicklinks-heading{display:block}.home-quicklinks-heading p{margin-top:22px}.home-quicklinks-grid{grid-template-columns:1fr}.home-quicklink-card{min-height:230px;padding:25px}.home-quicklink-card strong{font-size:28px}}
