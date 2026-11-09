@@ -31,6 +31,7 @@ export default defineConfig({
     env: {
       VITE_CATALOG_SOURCE: 'demo',
       VITE_BOOKING_AVAILABILITY_SOURCE: 'demo',
+      VITE_BOOKING_TRANSACTIONS_SOURCE: 'demo',
     },
   },
 });

@@ -22,6 +22,7 @@ export default defineConfig({
     env: {
       VITE_CATALOG_SOURCE: 'api',
       VITE_BOOKING_AVAILABILITY_SOURCE: 'api',
+      VITE_BOOKING_TRANSACTIONS_SOURCE: 'demo',
       VITE_API_BASE_URL: 'http://127.0.0.1:8000',
     },
   },
