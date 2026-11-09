@@ -39,3 +39,8 @@ src_backup*/
 
 # Local files
 *.log
+
+# Playwright generated artifacts
+playwright-report*/
+test-results*/
+blob-report/
