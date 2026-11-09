@@ -1,9 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-/**
- * QA only: starts a separate Vite dev server on port 4173.
- * Does not interfere with your normal localhost:5173 session.
- */
+/** Baseline 19 regression tests remain offline demo-mode, deterministic. */
 export default defineConfig({
   testDir: './e2e',
   timeout: 30_000,
@@ -30,5 +27,10 @@ export default defineConfig({
     url: 'http://127.0.0.1:4173/',
     timeout: 120_000,
     reuseExistingServer: !process.env.CI,
+    // Makes existing QA independent of PostgreSQL. Vite reads env at server start.
+    env: {
+      VITE_CATALOG_SOURCE: 'demo',
+      VITE_BOOKING_AVAILABILITY_SOURCE: 'demo',
+    },
   },
 });
