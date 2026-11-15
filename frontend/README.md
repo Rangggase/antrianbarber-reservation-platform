@@ -97,15 +97,16 @@ The Playwright configuration starts its own local test server. Do not upload cus
 | Check | Latest reported result | Context |
 | --- | --- | --- |
 | Manual user acceptance tests | **10/10 passed** | Developer-performed scenarios, not external-user UAT |
-| Playwright E2E | **19/19 passed** | Local Chromium, 7 November 2026 |
-| Lighthouse — Home | **100 / 95 / 100 / 92** | Performance / Accessibility / Best Practices / SEO |
-| Lighthouse — Booking | **99 / 96 / 100 / 91** | Performance / Accessibility / Best Practices / SEO |
+| Playwright E2E | **63/63 passed** | Local Chromium, 15 November 2026: demo 29, availability 2, bookings 3, production API 3, staff 14, UI kit 12 |
+| Lighthouse — Home | **100 / 95 / 100 / 92** | Performance / Accessibility / Best Practices / SEO. From v2.1e; not re-measured after Sprint 5 |
+| Lighthouse — Booking | **99 / 96 / 100 / 91** | Performance / Accessibility / Best Practices / SEO. From v2.1e; not re-measured after Sprint 5 |
 
 The two reported Lighthouse audits used different device modes, but the per-page Mobile/Desktop mapping has not been confirmed. Scores are lab estimates and can change between runs. See the [quality-assurance evidence](docs/qa/TEST_REPORT.md) for scope and limitations.
 
 ## Architecture and project notes
 
 - [Frontend architecture](docs/ARCHITECTURE.md)
+- [Design system: tokens, components, and the Sprint 5 plan](../design-system/MASTER.md) (before and after audit in `design-system/audit/`)
 - [QA evidence and test results](docs/qa/TEST_REPORT.md)
 - [Portfolio case study](docs/PORTFOLIO_CASE_STUDY.md)
 - [Development roadmap](docs/ROADMAP.md)

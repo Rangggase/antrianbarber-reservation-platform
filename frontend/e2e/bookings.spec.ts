@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 
 const services = [
-  { id:1, code:'classic', name:'Classic Haircut', description:'Demo service', duration_minutes:45, price_idr:55000 },
+  { id:1, code:'classic', name:'Potong Klasik', description:'Demo service', duration_minutes:45, price_idr:55000 },
   { id:2, code:'fade', name:'Fade & Taper', description:'Demo fade', duration_minutes:60, price_idr:75000 },
 ];
 const barbers = [ { id:1, code:'raka', full_name:'Raka Pratama', specialty:'Fade', bio:'Demo barber' } ];
@@ -46,7 +46,7 @@ async function mockApi(page:Page, failCreate=false){
 /** Three steps: service and barber, time, then details. The last button creates the karcis. */
 async function fillWizard(page:Page){
   await page.goto('/reservasi');
-  await page.getByRole('group',{name:'Pilih layanan'}).getByRole('button',{name:/Classic Haircut/}).click();
+  await page.getByRole('group',{name:'Pilih layanan'}).getByRole('button',{name:/Potong Klasik/}).click();
   await page.getByRole('group',{name:'Pilih barber'}).getByRole('button',{name:/Raka Pratama/}).click();
   await page.getByRole('button',{name:'Lanjutkan'}).click();
   await page.locator('#wizard-date').fill(tomorrow());

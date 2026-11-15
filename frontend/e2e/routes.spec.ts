@@ -57,7 +57,7 @@ test.describe('Katalog dan halaman profil', () => {
     await page.goto('/barber');
     await page.getByRole('link', { name: /Pilih barber ini/ }).first().click();
     await expect(page).toHaveURL(/\/reservasi\?barber=raka$/);
-    await page.getByRole('group', { name: 'Pilih layanan' }).getByRole('button', { name: /Classic Haircut/ }).click();
+    await page.getByRole('group', { name: 'Pilih layanan' }).getByRole('button', { name: /Potong Klasik/ }).click();
     await expect(page.getByRole('group', { name: 'Pilih barber' })
       .getByRole('button', { name: /Raka Pratama/ })).toHaveAttribute('aria-pressed', 'true');
   });
@@ -70,7 +70,7 @@ test.describe('Katalog dan halaman profil', () => {
     await filters.getByRole('button', { name: 'Fade', exact: true }).click();
     await expect(cards).toHaveCount(2);
     await expect(filters.getByRole('button', { name: 'Fade' })).toHaveAttribute('aria-pressed', 'true');
-    await filters.getByRole('button', { name: 'Classic' }).click();
+    await filters.getByRole('button', { name: 'Klasik' }).click();
     await expect(cards).toHaveCount(2);
     await filters.getByRole('button', { name: 'Semua' }).click();
     await expect(cards).toHaveCount(6);

@@ -22,8 +22,8 @@ export default function BarberTeam({ compact = false }: { compact?: boolean }) {
 
   return <section className="section-light team-section" aria-labelledby="team-heading">
     <div className="container-shell">
-      <div className="section-head"><div><div className="eyebrow"><span className="line" /> MEET THE CRAFT</div>
-        <h2 id="team-heading">Skilled hands.<br/><em>Signature looks.</em></h2></div>
+      <div className="section-head"><div><div className="eyebrow"><span className="line" /> KENALI TIMNYA</div>
+        <h2 id="team-heading">Tangan terampil.<br/><em>Gaya khas.</em></h2></div>
         <p>Pilih siapa yang akan menangani gaya kamu. Profil berikut adalah data ilustratif untuk demonstrasi portofolio.</p>
       </div>
       {useLiveCatalog && <p className="catalog-source" role="status">Profil barber diambil dari server demo.</p>}
@@ -33,7 +33,7 @@ export default function BarberTeam({ compact = false }: { compact?: boolean }) {
       {(!useLiveCatalog || catalog.status === 'ready') && shown.length > 0 && <div className="team-grid">
         {shown.map((barber, index) => <article className="team-card" key={barber.id}>
           <div className={`team-portrait team-${barber.tone}`} aria-label={`Ilustrasi grafis ${barber.name}`} role="img">
-            <span className="team-portrait-number">0{index + 1} / THE TEAM</span>
+            <span className="team-portrait-number">0{index + 1} / TIM</span>
             <span className="team-avatar-mark" aria-hidden="true">{barber.initials}</span>
             <Scissors aria-hidden="true" size={46} strokeWidth={0.8} className="team-avatar-scissors" />
           </div>

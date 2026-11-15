@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const services = [{ id:1, code:'classic', name:'Classic Haircut', description:'Demo service', duration_minutes:45, price_idr:55000 },
+const services = [{ id:1, code:'classic', name:'Potong Klasik', description:'Demo service', duration_minutes:45, price_idr:55000 },
                   { id:2, code:'fade', name:'Fade & Taper', description:'Demo fade', duration_minutes:60, price_idr:75000 }];
 const barbers = [{ id:1, code:'raka', full_name:'Raka Pratama', specialty:'Fade', bio:'Demo barber' },
                  { id:2, code:'naufal', full_name:'Naufal Ardi', specialty:'Classic', bio:'Demo barber' }];
@@ -33,7 +33,7 @@ function tomorrow() {
 test('memuat slot API WIB sesuai barber dan layanan; pergantian barber membersihkan waktu', async ({ page }) => {
   await mockApi(page);
   await page.goto('/reservasi');
-  await page.getByRole('group', { name:'Pilih layanan' }).getByRole('button', { name:/Classic Haircut/ }).click();
+  await page.getByRole('group', { name:'Pilih layanan' }).getByRole('button', { name:/Potong Klasik/ }).click();
   await page.getByRole('group', { name:'Pilih barber' }).getByRole('button', { name:/Raka Pratama/ }).click();
   await page.getByRole('button', { name:'Lanjutkan' }).click();
   await page.locator('#wizard-date').fill(tomorrow());
@@ -53,7 +53,7 @@ test('saat API availability gagal, slot tidak diambil dari data statis', async (
   await mockApi(page);
   await page.route('http://127.0.0.1:8000/api/v1/availability?**', route => route.fulfill({ status:503, json:{ detail:'Unavailable' }, headers: { 'access-control-allow-origin':'*' } }));
   await page.goto('/reservasi');
-  await page.getByRole('group', { name:'Pilih layanan' }).getByRole('button', { name:/Classic Haircut/ }).click();
+  await page.getByRole('group', { name:'Pilih layanan' }).getByRole('button', { name:/Potong Klasik/ }).click();
   await page.getByRole('group', { name:'Pilih barber' }).getByRole('button', { name:/Raka Pratama/ }).click();
   await page.getByRole('button', { name:'Lanjutkan' }).click();
   await page.locator('#wizard-date').fill(tomorrow());

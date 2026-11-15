@@ -42,6 +42,8 @@ Angka di atas berasal dari rilis frontend v2.1e. Untuk backend dan area staf (di
 - 118 tes backend lulus: 104 pada SQLite dan 14 pada PostgreSQL asli (constraint, migrasi bolak-balik, balapan konkurensi).
 - 63 tes Playwright lulus: 29 baseline demo (termasuk shell pelanggan), 14 area staf, 3 build produksi memakai API, 5 dengan API di-mock, dan 12 untuk sistem desain.
 
+Sprint 5 (sistem desain) mengganti tampilan pelanggan dan area staf dengan token dan komponen baru. Pengukuran sesudahnya ada di `design-system/audit/after/metrics.txt`: di 8 rute pelanggan pada lebar 320 sampai 1440px, judul tunggal, tanpa overflow horizontal, dan tanpa teks di bawah 13px. Di layar ponsel dan tablet tidak ada kontrol di bawah 44px; di desktop tersisa satu tombol header 40px yang memang diizinkan untuk pointer halus. Belum dilakukan: uji aksesibilitas otomatis (axe), yang paketnya belum terpasang, dan Lighthouse ulang.
+
 Hasil tersebut tidak menyatakan sudah ada pelanggan nyata atau reservasi produksi. Mode perangkat untuk tiap laporan Lighthouse perlu diperjelas saat bukti tambahan tersedia.
 
 ## Pelajaran yang diperoleh

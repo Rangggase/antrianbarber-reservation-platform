@@ -1,8 +1,8 @@
 export const services = [
-  { id: 'classic', no: '01', category: 'ESSENTIAL', name: 'Classic Haircut', description: 'Potongan clean dan presisi yang selalu relevan untuk keseharianmu.', price: 55000, duration: 45, icon: 'scissors' },
-  { id: 'fade', no: '02', category: 'MOST REQUESTED', name: 'Fade & Taper', description: 'Gradasi tajam, blending halus, dan detail yang membuatmu standout.', price: 75000, duration: 60, icon: 'sparkles' },
-  { id: 'wash', no: '03', category: 'COMPLETE CARE', name: 'Cut & Wash', description: 'Potongan khas dan keramas untuk hasil akhir yang bersih dan segar.', price: 85000, duration: 60, icon: 'droplets' },
-  { id: 'beard', no: '04', category: 'GROOMING', name: 'Beard Trim', description: 'Rapikan jenggot dan garis wajah untuk tampilan lebih refined.', price: 35000, duration: 30, icon: 'badge' },
+  { id: 'classic', no: '01', category: 'DASAR', name: 'Potong Klasik', description: 'Potongan rapi dan presisi yang selalu relevan untuk keseharianmu.', price: 55000, duration: 45, icon: 'scissors' },
+  { id: 'fade', no: '02', category: 'PALING DICARI', name: 'Fade & Taper', description: 'Gradasi tajam, blending halus, dan detail yang membuatmu tampil menonjol.', price: 75000, duration: 60, icon: 'sparkles' },
+  { id: 'wash', no: '03', category: 'PERAWATAN LENGKAP', name: 'Potong & Cuci', description: 'Potongan khas dan keramas untuk hasil akhir yang bersih dan segar.', price: 85000, duration: 60, icon: 'droplets' },
+  { id: 'beard', no: '04', category: 'PERAPIAN', name: 'Rapikan Jenggot', description: 'Rapikan jenggot dan garis wajah untuk tampilan lebih rapi.', price: 35000, duration: 30, icon: 'badge' },
 ] as const;
 
 export type ServiceId = (typeof services)[number]['id'];

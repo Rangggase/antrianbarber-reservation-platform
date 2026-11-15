@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-const service = (page: Page, label: RegExp = /Classic Haircut/) =>
+const service = (page: Page, label: RegExp = /Potong Klasik/) =>
   page.getByRole('group', { name: 'Pilih layanan' }).getByRole('button', { name: label });
 const next = (page: Page) => page.getByRole('button', { name: /Lanjutkan/ });
 const takeTicket = (page: Page) => page.getByRole('button', { name: 'Ambil karcis' });

@@ -26,7 +26,7 @@ export default function Services({ onSelect }: { onSelect: (service: ServiceId) 
     : services.map(item => ({ ...item, selectId: item.id as ServiceId }));
 
   return <section className="section-light" id="layanan" aria-labelledby="service-heading"><div className="container-shell">
-    <div className="section-head"><div><div className="eyebrow"><span className="line"/> OUR SERVICES</div><h2 id="service-heading">Gaya yang tepat.<br/><em>Layanan yang pas.</em></h2></div><p>Klasik atau kontemporer, setiap detail dirancang agar kamu keluar dengan rasa percaya diri yang baru.</p></div>
+    <div className="section-head"><div><div className="eyebrow"><span className="line"/> LAYANAN KAMI</div><h2 id="service-heading">Gaya yang tepat.<br/><em>Layanan yang pas.</em></h2></div><p>Klasik atau kontemporer, setiap detail dirancang agar kamu keluar dengan rasa percaya diri yang baru.</p></div>
     {useLiveCatalog && <p className="catalog-source" role="status">Katalog diambil dari server demo.</p>}
     {useLiveCatalog && catalog.status === 'loading' && <div className="catalog-feedback" role="status">Memuat layanan…</div>}
     {useLiveCatalog && catalog.status === 'error' && <div className="catalog-feedback catalog-error" role="alert"><p>Data layanan belum dapat dimuat: {catalog.error}</p><button type="button" onClick={catalog.retry}>Coba lagi</button></div>}
