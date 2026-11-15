@@ -1,46 +1,29 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Dependencies & virtual envs
+node_modules/
+**/node_modules/
+.venv/
+**/.venv/
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Local environment
+# Secrets & local env
 .env
 .env.*
 !.env.example
+*.local
 
-# Testing outputs
-playwright-report/
-test-results/
-
-# Backups
-*.backup-*.tsx.txt
-*.backup-*.spec.ts.txt
-src_backup*/
-
-# Local files
-*.log
-
-# Playwright generated artifacts
+# Build & test output
+dist/
 playwright-report*/
 test-results*/
-blob-report/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+.coverage
+
+# Editor
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Backups (kept outside the repo)
+*.zip
+*.backup

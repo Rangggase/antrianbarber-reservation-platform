@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 /** v2.3c browser tests mock API; no writes to local PostgreSQL. */
 export default defineConfig({
-  testDir: './qa-v23c',
+  testDir: './e2e', testMatch: 'bookings.spec.ts',
   timeout: 45_000,
   expect: { timeout: 12_000 },
   reporter: [['list'], ['html', { open:'never', outputFolder:'playwright-report-v23c' }]],

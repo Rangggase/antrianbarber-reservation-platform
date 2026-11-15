@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 /** Dedicated API-mode UI tests using mocked, deterministic FastAPI responses. */
 export default defineConfig({
-  testDir: './qa-v23b',
+  testDir: './e2e', testMatch: 'availability.spec.ts',
   timeout: 30_000,
   expect: { timeout: 10_000 },
   reporter: [['list'], ['html', { open: 'never', outputFolder: 'playwright-report-v23b' }]],
