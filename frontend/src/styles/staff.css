@@ -1,0 +1,86 @@
+/* Staff back office (v2.7). Scoped with .staff-* so customer styles stay untouched. */
+.staff-shell { min-height: 100vh; background: #f4f2ea; color: #142720; }
+.staff-topbar { display: flex; justify-content: space-between; align-items: center; padding: 14px clamp(16px, 4vw, 40px); background: #17372c; color: #fff; }
+.staff-brand { display: inline-flex; align-items: center; gap: 9px; font: 600 17px Georgia, serif; color: #fff; text-decoration: none; }
+.staff-brand span { font: 800 10px sans-serif; letter-spacing: .16em; color: #17372c; background: #e9c38e; padding: 3px 7px; border-radius: 3px; }
+.staff-topbar-link { color: #d0dbcf; font-size: 13px; }
+.staff-main { max-width: 980px; margin: 0 auto; padding: clamp(22px, 4vw, 44px) clamp(16px, 4vw, 28px) 70px; outline: none; }
+
+.staff-card { background: #fff; border: 1px solid #e3dfd2; padding: clamp(24px, 4vw, 40px); max-width: 460px; margin: 4vh auto; }
+.staff-card h1, .staff-dashboard h1 { font: 500 clamp(28px, 4vw, 40px)/1.15 Georgia, serif; letter-spacing: -.03em; margin: 6px 0 10px; }
+.staff-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: .17em; color: #9a7956; margin: 0; }
+.staff-muted { color: #687b6d; font-size: 14px; line-height: 1.6; margin: 0 0 16px; }
+.staff-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.staff-field label { font-size: 12px; font-weight: 700; letter-spacing: .04em; color: #35503f; }
+.staff-field input, .staff-field select { border: 1px solid #cfcab9; background: #fff; padding: 11px 12px; font-size: 15px; border-radius: 3px; min-height: 44px; }
+.staff-field input:focus-visible, .staff-field select:focus-visible, .staff-action:focus-visible, .staff-link:focus-visible { outline: 3px solid #e9c38e; outline-offset: 2px; }
+.staff-submit { width: 100%; justify-content: center; }
+.staff-error { background: #fbeceb; color: #8a2a21; border-left: 4px solid #b4382c; padding: 11px 14px; font-size: 14px; margin: 0 0 16px; }
+.staff-notice { background: #eaf3ec; color: #1d4a32; border-left: 4px solid #2f7d52; padding: 11px 14px; font-size: 14px; margin: 0 0 16px; }
+.staff-empty { background: #fff; border: 1px dashed #cfcab9; padding: 28px; text-align: center; color: #687b6d; }
+.staff-link { background: none; border: 0; color: inherit; text-decoration: underline; cursor: pointer; padding: 0; font: inherit; }
+
+.staff-dash-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 18px; }
+.staff-toolbar { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; margin-bottom: 8px; }
+.staff-toolbar .staff-field { margin-bottom: 0; min-width: 170px; }
+.staff-refresh { margin-bottom: 0; min-height: 44px; }
+.staff-counts { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 14px 0 18px; }
+.staff-chip { background: #fff; border: 1px solid #e3dfd2; padding: 6px 11px; font-size: 12px; border-radius: 999px; color: #35503f; }
+.staff-chip b { font-size: 14px; margin-right: 3px; }
+
+.staff-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.staff-row { display: grid; grid-template-columns: 112px 1fr auto; gap: 16px; align-items: center; background: #fff; border: 1px solid #e3dfd2; border-left: 5px solid #b9b39f; padding: 14px 16px; }
+.staff-row.status-pending { border-left-color: #c9a227; }
+.staff-row.status-confirmed { border-left-color: #2f7d52; }
+.staff-row.status-in_service { border-left-color: #2563a6; }
+.staff-row.status-completed { border-left-color: #6b7d70; opacity: .8; }
+.staff-row.status-cancelled, .staff-row.status-no_show { border-left-color: #b4382c; opacity: .65; }
+.staff-time { display: flex; flex-direction: column; gap: 3px; }
+.staff-time strong { font: 600 24px Georgia, serif; }
+.staff-time small, .staff-ref { color: #7a8a7f; font-size: 11px; }
+.staff-info { display: flex; flex-direction: column; gap: 3px; font-size: 14px; min-width: 0; }
+.staff-info span { color: #4f6355; }
+.staff-phone { color: #1d4a32; font-size: 13px; display: inline-flex; align-items: center; gap: 5px; width: fit-content; }
+.staff-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; align-items: center; }
+.staff-badge { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 4px 9px; border-radius: 3px; background: #ece9de; color: #35503f; }
+.staff-badge.status-pending { background: #f8efc9; color: #6b5200; }
+.staff-badge.status-confirmed { background: #d9eee0; color: #1d4a32; }
+.staff-badge.status-in_service { background: #d8e6f6; color: #17406e; }
+.staff-badge.status-cancelled, .staff-badge.status-no_show { background: #f6dcd9; color: #8a2a21; }
+.staff-action { min-height: 40px; padding: 0 14px; border: 1px solid #17372c; background: #17372c; color: #fff; font-size: 13px; font-weight: 700; border-radius: 3px; cursor: pointer; }
+.staff-action:disabled { opacity: .5; cursor: progress; }
+.staff-action.action-cancelled, .staff-action.action-no_show { background: #fff; color: #8a2a21; border-color: #c9857d; }
+
+@media (max-width: 680px) {
+  .staff-row { grid-template-columns: 1fr; gap: 10px; }
+  .staff-actions { justify-content: flex-start; }
+  .staff-dash-head { flex-direction: column; }
+  .staff-toolbar .staff-field { flex: 1 1 100%; }
+}
+
+/* Reports */
+.staff-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; list-style: none; padding: 0; margin: 14px 0 22px; }
+.staff-kpis li { background: #fff; border: 1px solid #e3dfd2; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.staff-kpis span { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #7a8a7f; }
+.staff-kpis strong { font: 600 26px Georgia, serif; }
+.staff-report-block { margin-bottom: 26px; }
+.staff-report-block h2 { font: 600 20px Georgia, serif; margin: 0 0 10px; }
+.staff-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e3dfd2; font-size: 14px; }
+.staff-table th, .staff-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee9db; }
+.staff-table thead th { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #7a8a7f; }
+.staff-peaks { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.staff-peaks li { display: grid; grid-template-columns: 56px 1fr 34px; gap: 10px; align-items: center; font-size: 13px; }
+.staff-bar { background: #ece9de; height: 12px; border-radius: 2px; overflow: hidden; }
+.staff-bar i { display: block; height: 100%; background: #2f7d52; }
+.staff-head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* Schedule and time off */
+.staff-week { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 8px; }
+.staff-week > li { display: grid; grid-template-columns: 90px 1fr; gap: 12px; background: #fff; border: 1px solid #e3dfd2; padding: 10px 14px; align-items: start; }
+.staff-intervals { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.staff-interval { display: flex; gap: 8px; align-items: center; }
+.staff-interval input { border: 1px solid #cfcab9; padding: 8px; font-size: 14px; border-radius: 3px; min-height: 40px; }
+.staff-icon-btn { width: 40px; height: 40px; border: 1px solid #c9857d; background: #fff; color: #8a2a21; border-radius: 3px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.staff-timeoff { list-style: none; padding: 0; margin: 0 0 14px; display: grid; gap: 8px; }
+.staff-timeoff li { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: #fff; border: 1px solid #e3dfd2; padding: 10px 14px; font-size: 14px; }
+@media (max-width: 680px) { .staff-table { font-size: 13px; } .staff-table th, .staff-table td { padding: 8px 6px; } }

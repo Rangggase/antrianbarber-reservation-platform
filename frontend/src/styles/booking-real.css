@@ -1,0 +1,31 @@
+/* v2.3c additions. Do not change existing premium layout. */
+.real-booking-actions { display: flex; gap: .45rem; flex-wrap: wrap; margin-top: .8rem; }
+.real-booking-actions button { min-height: 40px; }
+.real-booking-actions button:disabled { opacity: .55; cursor: wait; }
+.real-history-caption, .real-ticket-security { font-size: .8rem; line-height: 1.6; opacity: .86; margin: .7rem 0 1.2rem; }
+.real-booking-item { gap: 1rem; flex-wrap: wrap; }
+.real-booking-item .booking-ticket { overflow-wrap: anywhere; }
+@media (max-width: 640px) {.real-booking-actions { flex-direction: column; align-items: stretch; }}
+
+/* v2.3c Hotfix 02 — keep ticket dialogs inside the browser viewport.
+   This also fixes the Playwright 'element is outside of the viewport' failure. */
+div.dialog-backdrop {
+  box-sizing: border-box;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 16px;
+  overscroll-behavior: contain;
+}
+
+div.dialog-backdrop > div.ticket-dialog {
+  box-sizing: border-box;
+  flex: 0 1 510px;
+  width: 100%;
+  max-width: 510px;
+  max-height: calc(100dvh - 32px);
+  margin: auto 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
