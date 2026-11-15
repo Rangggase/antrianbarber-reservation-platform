@@ -195,6 +195,11 @@ test('logging out clears the session', async ({ page }) => {
   await expect(page).toHaveURL(/\/staff\/login$/);
 });
 
+test('in server mode the demo strip says the data is stored on the demo server', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('note')).toContainText('Data tersimpan di server demo; gunakan data fiktif.');
+});
+
 test('customer sees queue number and estimated wait after checking status', async ({ page }) => {
   const code = 'AB-20261110-CCCC000003';
   const day = todayWib();

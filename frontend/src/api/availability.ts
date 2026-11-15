@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { availabilityFromApi } from './config';
+import { HttpStatusError, loadErrorMessage } from './loadError';
 
 /** Slot availability is read-only; the source is chosen at build time (see ./config.ts). */
 export const useLiveAvailability = availabilityFromApi;
@@ -55,7 +56,7 @@ async function fetchSlots(query: Required<Pick<AvailabilityQuery, 'barberId' | '
   const response = await fetch(url, {
     headers: { Accept: 'application/json' }, credentials: 'omit', signal,
   });
-  if (!response.ok) throw new Error(`Server mengembalikan HTTP ${response.status}.`);
+  if (!response.ok) throw new HttpStatusError(response.status);
   const raw: unknown = await response.json();
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('Format respons API tidak sesuai.');
   const data = raw as Record<string, unknown>;
@@ -93,7 +94,7 @@ export function useAvailability(query: AvailabilityQuery) {
         if (!active) return;
         setState({
           status: 'error', key, slots: [],
-          error: controller.signal.aborted ? 'Waktu permintaan API melebihi 8 detik.' : error instanceof Error ? error.message : 'Gagal memuat slot API.',
+          error: loadErrorMessage(error, controller.signal.aborted, 'availability'),
         });
       })
       .finally(() => window.clearTimeout(timer));

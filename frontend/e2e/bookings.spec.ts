@@ -61,7 +61,7 @@ async function fillWizard(page:Page){
 test('POST 201 menampilkan tiket, GET menggunakan token, dan pembatalan POST mengubah status', async ({page})=>{
   const api=await mockApi(page);
   await fillWizard(page);
-  await page.getByRole('button',{name:'Buat Tiket PostgreSQL'}).click();
+  await page.getByRole('button',{name:'Buat Tiket'}).click();
   await expect(page.getByRole('dialog',{name:'Tiket tersimpan.'})).toBeVisible();
   await expect(page.getByRole('dialog')).toContainText(code);
   await page.getByRole('button',{name:'Tutup tiket'}).click();
@@ -70,7 +70,7 @@ test('POST 201 menampilkan tiket, GET menggunakan token, dan pembatalan POST men
   await page.getByRole('button',{name:'Periksa status'}).click();
   await expect(page.getByRole('status').filter({hasText:'Status tiket berhasil diperbarui'})).toBeVisible();
   page.once('dialog',dlg=>dlg.accept());
-  await page.getByRole('button',{name:'Batalkan di API'}).click();
+  await page.getByRole('button',{name:'Batalkan reservasi'}).click();
   await expect(page.getByText('CANCELLED',{exact:true})).toBeVisible();
   expect(api.stats()).toEqual({created:1,cancelled:1,getAuthorized:1});
 });
@@ -78,8 +78,8 @@ test('POST 201 menampilkan tiket, GET menggunakan token, dan pembatalan POST men
 test('HTTP 409 tidak menghasilkan tiket palsu dan meminta memilih ulang slot',async({page})=>{
   const api=await mockApi(page,true);
   await fillWizard(page);
-  await page.getByRole('button',{name:'Buat Tiket PostgreSQL'}).click();
-  await expect(page.getByRole('alert').filter({hasText:'Konflik reservasi (HTTP 409)'})).toBeVisible();
+  await page.getByRole('button',{name:'Buat Tiket'}).click();
+  await expect(page.getByRole('alert').filter({hasText:'Reservasi tidak bisa dibuat'})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Pilih barber & jadwal.'})).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(api.stats().created).toBe(1);
@@ -88,10 +88,10 @@ test('HTTP 409 tidak menghasilkan tiket palsu dan meminta memilih ulang slot',as
 test('menghapus catatan sesi tidak memanggil cancel API',async({page})=>{
   const api=await mockApi(page);
   await fillWizard(page);
-  await page.getByRole('button',{name:'Buat Tiket PostgreSQL'}).click();
+  await page.getByRole('button',{name:'Buat Tiket'}).click();
   await page.getByRole('button',{name:'Tutup tiket'}).click();
   page.once('dialog',dlg=>dlg.accept());
   await page.getByRole('button',{name:'Lupakan lokal'}).click();
-  await expect(page.getByText('Belum ada tiket API dalam sesi ini.')).toBeVisible();
+  await expect(page.getByText('Belum ada tiket dalam sesi ini.')).toBeVisible();
   expect(api.stats().cancelled).toBe(0);
 });

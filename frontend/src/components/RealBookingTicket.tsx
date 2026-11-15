@@ -27,15 +27,15 @@ export function RealBookingTicket({ ticket, onClose }: { ticket: StoredApiTicket
   }, [onClose]);
   const day = bookingDateWib(ticket.starts_at);
   async function copy() {
-    try { await navigator.clipboard.writeText(`ANTRIAN BARBER · DEMO API LOKAL\nKode tiket: ${ticket.reference_code}\nTanggal: ${day}\nJam: ${slotLabel(ticket.starts_at)} WIB\nStatus: ${ticket.status}`); setCopied(true); }
+    try { await navigator.clipboard.writeText(`ANTRIAN BARBER · DEMO\nKode tiket: ${ticket.reference_code}\nTanggal: ${day}\nJam: ${slotLabel(ticket.starts_at)} WIB\nStatus: ${ticket.status}`); setCopied(true); }
     catch { setCopied(false); }
   }
   return <div className="dialog-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)onClose();}}>
     <div ref={boxRef} className="ticket-dialog" role="dialog" aria-modal="true" aria-labelledby="real-ticket-title" aria-describedby="real-ticket-description">
       <button ref={closeRef} type="button" className="dialog-close" aria-label="Tutup tiket" onClick={onClose}><X size={20}/></button>
-      <span className="dialog-success"><Check size={29}/></span><p className="eyebrow justify-center">POSTGRESQL BOOKING CREATED</p>
-      <h3 id="real-ticket-title">Tiket tersimpan.</h3><p id="real-ticket-description" className="ticket-muted">Reservasi demo berhasil dicatat pada PostgreSQL lokal; bukan antrean barbershop sungguhan.</p>
-      <div className="ticket-paper"><div className="flex justify-between text-xs font-bold tracking-[.14em]"><span>ANTRIAN BARBER</span><span>API LOKAL</span></div>
+      <span className="dialog-success"><Check size={29}/></span><p className="eyebrow justify-center">RESERVASI TERSIMPAN</p>
+      <h3 id="real-ticket-title">Tiket tersimpan.</h3><p id="real-ticket-description" className="ticket-muted">Reservasi demo berhasil dicatat di server demo; bukan antrean barbershop sungguhan.</p>
+      <div className="ticket-paper"><div className="flex justify-between text-xs font-bold tracking-[.14em]"><span>ANTRIAN BARBER</span><span>SERVER DEMO</span></div>
         <strong className="ticket-number">{ticket.reference_code}</strong>
         <div className="ticket-detail"><span>Barber</span><b>#{ticket.barber_id}</b></div>
         <div className="ticket-detail"><span>Layanan</span><b>#{ticket.service_id}</b></div>

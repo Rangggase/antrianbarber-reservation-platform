@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { catalogFromApi } from './config';
+import { HttpStatusError, loadErrorMessage } from './loadError';
 
 /**
  * Mode API ditentukan saat build/dev lewat variabel VITE_* (lihat ./config.ts).
@@ -70,7 +71,7 @@ async function fetchCatalog<K extends Resource>(resource: K, signal: AbortSignal
     credentials: 'omit',
     signal,
   });
-  if (!response.ok) throw new Error(`API ${resource} mengembalikan HTTP ${response.status}.`);
+  if (!response.ok) throw new HttpStatusError(response.status);
   const data: unknown = await response.json();
   const check = resource === 'services' ? isService : isBarber;
   if (!Array.isArray(data) || !data.every(check)) {
@@ -93,10 +94,7 @@ export function useApiCatalog<K extends Resource>(resource: K) {
       .then(items => { if (active) setState({ status: 'ready', items, error: null }); })
       .catch((error: unknown) => {
         if (!active) return;
-        const message = controller.signal.aborted
-          ? 'Permintaan API melewati batas waktu 8 detik.'
-          : error instanceof Error ? error.message : 'Terjadi kesalahan saat memuat data API.';
-        setState({ status: 'error', items: [], error: message });
+        setState({ status: 'error', items: [], error: loadErrorMessage(error, controller.signal.aborted, 'catalog') });
       })
       .finally(() => window.clearTimeout(timer));
     return () => { active = false; controller.abort(); window.clearTimeout(timer); };

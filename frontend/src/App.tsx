@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Outlet, Route, Routes } from 'react-router';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import DemoStrip from './components/DemoStrip';
 import RouteScrollManager from './components/RouteScrollManager';
 import HomePage from './pages/HomePage';
 import ServicesPage from './pages/ServicesPage';
@@ -28,6 +29,7 @@ function CustomerLayout() {
     <a href="#main" className="skip-link">Langsung ke konten</a>
     <RouteScrollManager />
     <Header />
+    <DemoStrip />
     <main id="main" tabIndex={-1}><Outlet /></main>
     <Footer />
   </>;

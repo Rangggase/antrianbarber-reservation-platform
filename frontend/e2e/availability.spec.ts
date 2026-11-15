@@ -41,9 +41,9 @@ test('memuat slot API WIB sesuai barber dan layanan; pergantian barber membersih
   await expect(slots.getByRole('button',{ name:'10:00' })).toBeVisible();
   await slots.getByRole('button', { name:'10:00' }).click();
   await page.getByRole('group', { name:'Pilih barber' }).getByRole('button', { name:/Naufal Ardi/ }).click();
-  await expect(page.getByText('Tidak ada slot API untuk pilihan ini.')).toBeVisible();
+  await expect(page.getByText('Tidak ada jam tersedia untuk pilihan ini.')).toBeVisible();
   await page.getByRole('button', { name:'Lanjutkan' }).click();
-  await expect(page.getByRole('alert').filter({ hasText: 'Pilih jam yang tersedia dari API.' })).toBeVisible();
+  await expect(page.getByRole('alert').filter({ hasText: 'Pilih salah satu jam yang tersedia.' })).toBeVisible();
 });
 
 test('saat API availability gagal, slot tidak diambil dari data statis', async ({ page }) => {
@@ -54,7 +54,7 @@ test('saat API availability gagal, slot tidak diambil dari data statis', async (
   await page.getByRole('button', { name:'Lanjutkan' }).click();
   await page.getByRole('group', { name:'Pilih barber' }).getByRole('button', { name:/Raka Pratama/ }).click();
   await page.locator('#wizard-date').fill(tomorrow());
-  await expect(page.getByRole('alert').filter({ hasText:'Slot API gagal dimuat' })).toBeVisible();
+  await expect(page.getByRole('alert').filter({ hasText:'Jam belum bisa dimuat' })).toBeVisible();
   await expect(page.getByRole('group', { name:'Jam preferensi' })).toHaveCount(0);
   await page.getByRole('button', { name:'Lanjutkan' }).click();
   await expect(page.getByRole('heading', { name:'Pilih barber & jadwal.' })).toBeVisible();

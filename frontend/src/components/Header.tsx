@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router';
-import { ArrowUpRight, Menu, Scissors, X } from 'lucide-react';
+import { Menu, Scissors, X } from 'lucide-react';
+import { buttonClass } from '../ui';
 
 const links = [
   { to: '/', label: 'Beranda' },
@@ -10,26 +11,30 @@ const links = [
   { to: '/tentang', label: 'Tentang' },
   { to: '/faq', label: 'FAQ' },
 ];
+
+/** Site header (Sprint 5b): ink bar, desktop navigation from 960px, menu button below it. */
 export default function Header() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
   useEffect(() => setOpen(false), [pathname]);
-  const navStyle = ({ isActive }: { isActive: boolean }) => `nav-link ${isActive ? 'nav-link-active' : ''}`;
-  return <header className="site-header" id="top">
-    <div className="container-shell flex h-20 items-center justify-between gap-5">
-      <Link to="/" className="brand" aria-label="Antrian Barber — beranda" onClick={() => setOpen(false)}>
-        <span className="brand-symbol"><Scissors size={22} strokeWidth={1.6}/></span>
-        <span>ANTRIAN<span className="text-[#dcb57b]">BARBER.</span></span>
+  const close = () => setOpen(false);
+  return <header className="ds-root ds-on-ink ds-header" id="top">
+    <div className="ds-header__bar">
+      <Link to="/" className="ds-header__brand ds-link" aria-label="Antrian Barber — beranda" onClick={close}>
+        <Scissors size={22} strokeWidth={1.75} aria-hidden="true" />
+        <span>Antrian Barber</span>
       </Link>
-      <nav className="hidden items-center gap-6 lg:flex" aria-label="Navigasi utama">
-        {links.map(link => <NavLink key={link.to} to={link.to} end className={navStyle}>{link.label}</NavLink>)}
+      <nav className="ds-header__nav" aria-label="Navigasi utama">
+        {links.map(link => <NavLink key={link.to} to={link.to} end className="ds-header__link ds-link">{link.label}</NavLink>)}
       </nav>
-      <Link className="button button-gold hidden lg:inline-flex" to="/reservasi">Ambil Antrean <ArrowUpRight size={17}/></Link>
-      <button type="button" className="mobile-menu-button lg:hidden" aria-label={open ? 'Tutup menu navigasi' : 'Buka menu navigasi'} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen(v => !v)}>{open ? <X size={25}/> : <Menu size={25}/>}</button>
+      <Link className={buttonClass({ variant: 'primary', compact: true }, 'ds-header__cta ds-link')} to="/reservasi">Ambil antrean</Link>
+      <button type="button" className="ds-header__menu ds-link" aria-label={open ? 'Tutup menu navigasi' : 'Buka menu navigasi'} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen(v => !v)}>
+        {open ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
+      </button>
     </div>
-    {open && <nav id="mobile-navigation" aria-label="Navigasi mobile" className="mobile-navigation lg:hidden">
-      {links.map(link => <NavLink key={link.to} to={link.to} end className={navStyle} onClick={() => setOpen(false)}>{link.label}</NavLink>)}
-      <Link to="/reservasi" onClick={() => setOpen(false)} className="button button-gold">Ambil Antrean <ArrowUpRight size={17}/></Link>
+    {open && <nav id="mobile-navigation" aria-label="Navigasi mobile" className="ds-header__panel">
+      {links.map(link => <NavLink key={link.to} to={link.to} end className="ds-header__link ds-link" onClick={close}>{link.label}</NavLink>)}
+      <Link to="/reservasi" onClick={close} className={buttonClass({ variant: 'primary', full: true }, 'ds-link')}>Ambil antrean</Link>
     </nav>}
   </header>;
 }

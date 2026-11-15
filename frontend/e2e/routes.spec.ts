@@ -26,7 +26,7 @@ test.describe('Navigasi publik', () => {
     await page.getByRole('navigation', { name: 'Navigasi utama' }).getByRole('link', { name: 'FAQ' }).click();
     await page.getByRole('link', { name: /Ambil Antrean/i }).first().click();
     await expect(page).toHaveURL(/\/reservasi$/);
-    await expect(page.getByRole('heading', { name: /Your seat/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Pesan karcis/i })).toBeVisible();
   });
 
   test('URL tidak dikenal menampilkan halaman 404 dan tetap punya navigasi', async ({ page }) => {

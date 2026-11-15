@@ -40,7 +40,7 @@ Tahap berikutnya menambahkan backend FastAPI + PostgreSQL. Pelanggan dapat memes
 Angka di atas berasal dari rilis frontend v2.1e. Untuk backend dan area staf (diukur pada mesin pengembang, bukan di CI):
 
 - 118 tes backend lulus: 104 pada SQLite dan 14 pada PostgreSQL asli (constraint, migrasi bolak-balik, balapan konkurensi).
-- 40 tes Playwright lulus: 19 baseline demo, 13 area staf, 3 build produksi memakai API, dan 5 dengan API di-mock.
+- 63 tes Playwright lulus: 29 baseline demo (termasuk shell pelanggan), 14 area staf, 3 build produksi memakai API, 5 dengan API di-mock, dan 12 untuk sistem desain.
 
 Hasil tersebut tidak menyatakan sudah ada pelanggan nyata atau reservasi produksi. Mode perangkat untuk tiap laporan Lighthouse perlu diperjelas saat bukti tambahan tersedia.
 
