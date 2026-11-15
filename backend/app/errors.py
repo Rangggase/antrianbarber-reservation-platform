@@ -15,6 +15,7 @@ logger = logging.getLogger("antrian_barber.errors")
 
 _DEFAULT_CODES = {
     400: "bad_request",
+    401: "unauthorized",
     403: "forbidden",
     404: "not_found",
     405: "method_not_allowed",

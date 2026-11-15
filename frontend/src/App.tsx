@@ -10,6 +10,9 @@ import AboutPage from './pages/AboutPage';
 import BookingPage from './pages/BookingPage';
 import FAQPage from './pages/FAQPage';
 import NotFoundPage from './pages/NotFoundPage';
+import StaffLayout from './components/StaffLayout';
+import StaffLoginPage from './pages/StaffLoginPage';
+import StaffDashboardPage from './pages/StaffDashboardPage';
 import './styles/routes.css';
 import './styles/premium-v21d.css';
 import './styles/qa-mobile-fix.css';
@@ -24,7 +27,12 @@ function CustomerLayout() {
   </>;
 }
 export default function App() {
-  return <Routes><Route element={<CustomerLayout />}>
+  return <Routes>
+    <Route path="staff" element={<StaffLayout />}>
+      <Route index element={<StaffDashboardPage />} />
+      <Route path="login" element={<StaffLoginPage />} />
+    </Route>
+    <Route element={<CustomerLayout />}>
     <Route index element={<HomePage />} />
     <Route path="layanan" element={<ServicesPage />} />
     <Route path="barber" element={<BarbersPage />} />

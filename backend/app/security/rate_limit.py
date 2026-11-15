@@ -64,6 +64,11 @@ def _policy(method: str, path: str) -> tuple[str, str, int] | None:
         return ('availability', 'AB_RL_AVAILABILITY_PER_MINUTE', 180)
     if method == 'POST' and path == '/api/v1/bookings':
         return ('create', 'AB_RL_CREATE_PER_MINUTE', 30)
+    # Brute-force protection for staff login: strict, per client address.
+    if method == 'POST' and path == '/api/v1/staff/login':
+        return ('login', 'AB_RL_LOGIN_PER_MINUTE', 10)
+    if path.startswith('/api/v1/staff/'):
+        return ('staff', 'AB_RL_STAFF_PER_MINUTE', 120)
     if path.startswith('/api/v1/bookings/'):
         rest = path[len('/api/v1/bookings/'):]
         if '/' not in rest and rest and method == 'GET':

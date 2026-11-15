@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, Header, Query, status
 from sqlalchemy.orm import Session
 
 from ..database import get_engine
-from ..schemas import BookingCreate, BookingCreated, BookingView, CatalogBarber, CatalogService, SlotList
+from ..schemas import BookingCreate, BookingCreated, BookingDetail, BookingView, CatalogBarber, CatalogService, SlotList
 from ..services import booking_service as service
 
 router = APIRouter(prefix="/api/v1", tags=["Reservation Demo API"])
@@ -48,13 +48,13 @@ def create_booking(body: BookingCreate, session: Session = Depends(get_session))
     return BookingCreated(**BookingView.model_validate(booking).model_dump(), access_token=token)
 
 
-@router.get("/bookings/{reference_code}", response_model=BookingView)
+@router.get("/bookings/{reference_code}", response_model=BookingDetail)
 def get_booking(
     reference_code: str,
     booking_token: Annotated[str | None, Header(alias="X-Booking-Token")] = None,
     session: Session = Depends(get_session),
 ):
-    return service.get_booking(session, reference_code, booking_token)
+    return service.get_booking_detail(session, reference_code, booking_token)
 
 
 @router.post("/bookings/{reference_code}/cancel", response_model=BookingView)

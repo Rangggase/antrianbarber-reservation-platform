@@ -12,8 +12,8 @@
 | v2.5 | Sprint 0: fondasi (env, CI, dokumentasi sinkron) | Selesai |
 | v2.5.1 | Sprint 1: API di build produksi, CORS dari env | Selesai |
 | v2.6 | Sprint 2: tes PostgreSQL asli, indeks unik per hari, refactor backend, error seragam dan logging | Selesai (CI PostgreSQL belum dijalankan di GitHub) |
-| v2.7 | Login admin/barber, status antrean, dashboard | Direncanakan |
-| v2.8 | Laporan, manajemen jadwal, deployment dan studi kasus final | Direncanakan |
+| v2.7 | Sprint 3: login admin/barber, alur status, nomor antrean + estimasi tunggu, dasbor staf | Selesai (CI dan database dev belum dimigrasi) |
+| v2.8 | Sprint 4: laporan, manajemen jadwal/cuti, deployment dan studi kasus final | Direncanakan |
 
 ## Prinsip pengerjaan
 

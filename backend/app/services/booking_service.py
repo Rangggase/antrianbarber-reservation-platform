@@ -21,7 +21,7 @@ from sqlalchemy.orm import Session
 
 from ..errors import AppError
 from ..models import Barber, Booking, Customer, Schedule, Service
-from ..schemas import BookingCreate
+from ..schemas import BookingCreate, BookingDetail
 
 logger = logging.getLogger("antrian_barber.booking")
 
@@ -221,6 +221,26 @@ def get_booking(session: Session, reference_code: str, token: str | None) -> Boo
     booking = _find(session, reference_code)
     _authorize(booking, token)
     return booking
+
+
+def get_booking_detail(session: Session, reference_code: str, token: str | None) -> BookingDetail:
+    """Booking plus queue position. The wait is an estimate: the summed durations of this
+    barber's confirmed / in-service bookings that start earlier today (WIB)."""
+    booking = get_booking(session, reference_code, token)
+    detail = BookingDetail.model_validate(booking)
+    start_local = _as_utc(booking.starts_at).astimezone(LOCAL_ZONE)
+    if booking.status in ("pending", "confirmed") and start_local.date() == datetime.now(LOCAL_ZONE).date():
+        day_begin = datetime.combine(start_local.date(), datetime.min.time(), LOCAL_ZONE).astimezone(timezone.utc)
+        rows = session.execute(select(Booking.starts_at, Booking.ends_at).where(
+            Booking.barber_id == booking.barber_id,
+            Booking.id != booking.id,
+            Booking.status.in_(("confirmed", "in_service")),
+            Booking.starts_at >= day_begin,
+            Booking.starts_at < booking.starts_at,
+        )).all()
+        detail.ahead_count = len(rows)
+        detail.estimated_wait_minutes = round(sum((_as_utc(e) - _as_utc(s)).total_seconds() for s, e in rows) / 60)
+    return detail
 
 
 def cancel_booking(session: Session, reference_code: str, token: str | None) -> Booking:

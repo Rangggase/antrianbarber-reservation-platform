@@ -22,7 +22,8 @@ from sqlalchemy.orm import Session
 from app.api.reservations import get_session
 from app.config import get_test_database_url
 from app.main import app
-from app.models import Barber, Booking, Customer, Schedule, Service
+from app.models import Barber, Booking, Customer, Schedule, Service, StaffUser
+from app.security.passwords import hash_password
 from app.security.rate_limit import RATE_LIMITER
 
 TEST_URL = get_test_database_url()
@@ -30,7 +31,8 @@ pytestmark = pytest.mark.skipif(TEST_URL is None, reason="TEST_DB_NAME / TEST_DA
 
 JKT = ZoneInfo("Asia/Jakarta")
 DAY_INDEX = "uq_bookings_customer_local_day_active"
-HEAD = "20261115_02"
+HEAD = "20261116_03"
+QUEUE_INDEX = "uq_bookings_barber_local_day_queue"
 SECRET = "postgres-integration-secret-at-least-32-characters"
 
 
@@ -58,7 +60,7 @@ def pg_engine():
 @pytest.fixture()
 def db(pg_engine):
     with pg_engine.begin() as conn:
-        conn.execute(text("TRUNCATE bookings, schedules, customers, barbers, services RESTART IDENTITY CASCADE"))
+        conn.execute(text("TRUNCATE bookings, schedules, customers, barbers, services, staff_users RESTART IDENTITY CASCADE"))
     with Session(pg_engine) as s:
         s.add_all([Barber(code="raka", full_name="Raka"), Barber(code="dimas", full_name="Dimas")])
         s.add(Service(code="fade", name="Fade", duration_minutes=60, price_idr=75000))
@@ -171,20 +173,47 @@ def test_rule_uses_jakarta_calendar_day_not_utc(db):
         add_booking(s, a, at(day + timedelta(days=1), 0, 30), barber_id=2)
 
 
-def test_migration_roundtrip_removes_and_restores_the_index(pg_engine):
-    def index_exists() -> bool:
+def test_migration_roundtrip_removes_and_restores_the_indexes_and_staff_table(pg_engine):
+    def present(name: str) -> bool:
         with pg_engine.connect() as conn:
-            return conn.execute(text("SELECT 1 FROM pg_indexes WHERE indexname = :n"), {"n": DAY_INDEX}).scalar() is not None
+            return conn.execute(text("SELECT 1 FROM pg_indexes WHERE indexname = :n"), {"n": name}).scalar() is not None
 
-    assert index_exists()
-    _alembic("downgrade", "20261108_01")
+    def staff_table() -> bool:
+        with pg_engine.connect() as conn:
+            return conn.execute(text("SELECT to_regclass('staff_users')")).scalar() is not None
+
+    assert present(DAY_INDEX) and present(QUEUE_INDEX) and staff_table()
+    _alembic("downgrade", "20261115_02")          # undo only the staff/queue migration
     try:
-        assert not index_exists()
+        assert not present(QUEUE_INDEX) and not staff_table() and present(DAY_INDEX)
+        _alembic("downgrade", "20261108_01")
+        assert not present(DAY_INDEX)
     finally:
         _alembic("upgrade", "head")
-    assert index_exists()
+    assert present(DAY_INDEX) and present(QUEUE_INDEX) and staff_table()
     with pg_engine.connect() as conn:
         assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == HEAD
+
+
+def test_queue_number_is_unique_per_barber_per_local_day(db):
+    day = future_day()
+    with Session(db) as s:
+        a, b, c, d = (add_customer(s, f"08150000000{i}") for i in range(4))
+        add_booking(s, a, at(day, 9), barber_id=1)
+        first = s.scalar(text("SELECT id FROM bookings ORDER BY id LIMIT 1"))
+        s.execute(text("UPDATE bookings SET queue_number = 1 WHERE id = :i"), {"i": first})
+        s.commit()
+        add_booking(s, b, at(day, 11), barber_id=1)
+        with pytest.raises(IntegrityError) as err:
+            s.execute(text("UPDATE bookings SET queue_number = 1 WHERE customer_id = :c"), {"c": b})
+            s.commit()
+        s.rollback()
+        assert violation(err.value) == ("23505", QUEUE_INDEX)
+        # other barber, other day, and NULL numbers are all unaffected
+        add_booking(s, c, at(day, 9), barber_id=2)
+        add_booking(s, d, at(day + timedelta(days=1), 9), barber_id=1)
+        s.execute(text("UPDATE bookings SET queue_number = 1 WHERE customer_id IN (:c, :d)"), {"c": c, "d": d})
+        s.commit()
 
 
 # --- concurrency through the real API -------------------------------------------
@@ -192,7 +221,8 @@ def test_migration_roundtrip_removes_and_restores_the_index(pg_engine):
 @pytest.fixture()
 def api(db, monkeypatch):
     monkeypatch.setenv("BOOKING_TOKEN_SECRET", SECRET)
-    for key in ("AB_RL_AVAILABILITY_PER_MINUTE", "AB_RL_CREATE_PER_MINUTE"):
+    monkeypatch.setenv("STAFF_JWT_SECRET", "postgres-staff-jwt-secret-at-least-32-characters")
+    for key in ("AB_RL_AVAILABILITY_PER_MINUTE", "AB_RL_CREATE_PER_MINUTE", "AB_RL_LOGIN_PER_MINUTE", "AB_RL_STAFF_PER_MINUTE"):
         monkeypatch.setenv(key, "100000")
     RATE_LIMITER.reset_for_tests()
 
@@ -266,3 +296,62 @@ def test_conflict_responses_carry_stable_codes(api):
         again = c.post("/api/v1/bookings", json=payload(slots[2], "081400000001"))  # free slot, same customer + day
     assert taken.status_code == 409 and taken.json()["code"] == "slot_unavailable"
     assert again.status_code == 409 and again.json()["code"] == "customer_day_conflict"
+
+
+# --- staff: concurrent confirmations get distinct queue numbers ------------------------
+
+STAFF_PASSWORD = "postgres integration password"
+
+
+def staff_login(db) -> dict:
+    with Session(db) as s:
+        s.add(StaffUser(username="admin", full_name="Admin", password_hash=hash_password(STAFF_PASSWORD), role="admin"))
+        s.commit()
+    with TestClient(app) as c:
+        response = c.post("/api/v1/staff/login", json={"username": "admin", "password": STAFF_PASSWORD})
+    assert response.status_code == 200, response.text
+    return {"Authorization": f"Bearer {response.json()['access_token']}"}
+
+
+def confirm_all(headers: dict, refs: list[str]) -> list[tuple[int, int | None]]:
+    """Confirm every booking at the same moment; return (http status, queue number) pairs."""
+    barrier = threading.Barrier(len(refs))
+    clients = [TestClient(app) for _ in refs]
+
+    def worker(index: int):
+        barrier.wait(timeout=15)
+        response = clients[index].post(f"/api/v1/staff/bookings/{refs[index]}/status", json={"status": "confirmed"}, headers=headers)
+        return response.status_code, (response.json().get("queue_number") if response.status_code == 200 else None)
+
+    with ThreadPoolExecutor(len(refs)) as pool:
+        return list(pool.map(worker, range(len(refs))))
+
+
+def test_concurrent_confirmations_get_distinct_consecutive_queue_numbers(api):
+    headers = staff_login(api)
+    for round_no in range(3):
+        day = future_day(20 + round_no)
+        refs = []
+        with Session(api) as s:
+            for i in range(6):
+                customer = add_customer(s, f"0816{round_no}{i:07d}")
+                add_booking(s, customer, at(day, 9 + i), barber_id=1, code=f"AB-Q-{round_no}-{i}")
+                refs.append(f"AB-Q-{round_no}-{i}")
+        results = confirm_all(headers, refs)
+        assert all(status == 200 for status, _ in results), results
+        assert sorted(number for _, number in results) == [1, 2, 3, 4, 5, 6]
+
+
+def test_confirmed_bookings_of_different_barbers_number_independently(api):
+    headers = staff_login(api)
+    day = future_day(30)
+    refs = []
+    with Session(api) as s:
+        for barber_id in (1, 2):
+            for i in range(2):
+                customer = add_customer(s, f"0817{barber_id}{i:07d}")
+                add_booking(s, customer, at(day, 9 + i), barber_id=barber_id, code=f"AB-B{barber_id}-{i}")
+                refs.append(f"AB-B{barber_id}-{i}")
+    results = confirm_all(headers, refs)
+    assert [status for status, _ in results] == [200] * 4
+    assert sorted(number for _, number in results) == [1, 1, 2, 2]

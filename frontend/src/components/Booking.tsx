@@ -292,6 +292,8 @@ export default function Booking({preselect}:{preselect:{service?:ServiceId;barbe
           <div><div className="flex items-center gap-3"><strong className="booking-ticket">{t.reference_code}</strong><span className="booking-pill">{t.status.toUpperCase()}</span></div>
             <p>{remoteService?.name ?? `Layanan #${t.service_id}`} · {remoteBarber?.full_name ?? `Barber #${t.barber_id}`}</p>
             <small><CalendarDays size={14}/> {formatDate(dateLocal)} · {slotLabel(t.starts_at)} WIB</small>
+            {typeof t.queue_number==='number'&&<small className="queue-info">Nomor antrean #{t.queue_number}</small>}
+            {typeof t.ahead_count==='number'&&<small className="queue-info">{t.ahead_count} antrean di depan · estimasi tunggu ±{t.estimated_wait_minutes??0} menit</small>}
           </div>
           <div className="real-booking-actions"><button type="button" className="cancel-ticket" disabled={!!apiBusyTicket} onClick={()=>refreshRemote(t)}>Periksa status</button>
             {['pending','confirmed'].includes(t.status)&&<button type="button" className="cancel-ticket" disabled={!!apiBusyTicket} onClick={()=>cancelRemote(t)}>Batalkan di API</button>}

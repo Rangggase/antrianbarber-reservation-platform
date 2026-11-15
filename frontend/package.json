@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "e2e:prod-api": "playwright test -c playwright.production-api.config.ts --workers=1"
+    "e2e:prod-api": "playwright test -c playwright.production-api.config.ts --workers=1",
+    "e2e:staff": "playwright test -c playwright.staff.config.ts --workers=1"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.4",

@@ -7,7 +7,8 @@ Antrian Barber — proyek portofolio reservasi barbershop (mahasiswa Sistem Info
 **Backend** (dari `backend/`, Python venv di `.venv`)
 ```bash
 python -m pip install -r requirements-dev.txt
-python -m pytest -q                      # 43 tes SQLite; +11 tes PostgreSQL bila TEST_DB_NAME diset
+python -m pytest -q                      # 82 tes SQLite; +14 tes PostgreSQL bila TEST_DB_NAME diset
+python -m scripts.create_staff --username admin --full-name "Admin" --role admin   # akun staf (password via prompt)
 TEST_DB_NAME=antrian_barber_test python -m scripts.create_test_db   # sekali; nama WAJIB berakhiran _test
 python -m alembic upgrade head           # butuh PostgreSQL + .env
 python -m uvicorn app.main:app --reload --port 8000
@@ -20,10 +21,14 @@ npm run dev        # http://localhost:5173
 npm run build      # tsc -b && vite build
 npm run lint       # oxlint (hanya warning yang diketahui)
 npx playwright test --project=chromium --workers=1   # 19 tes baseline, mode demo
+npm run e2e:staff                        # 8 tes area staf (API di-mock)
 ```
 
 ## Struktur
 - `backend/app/api/reservations.py` — router tipis; aturan bisnis di `backend/app/services/booking_service.py`, model request/response di `schemas.py`
+- Staf: `backend/app/api/staff.py` (router), `services/staff_service.py` (alur status + nomor antrean), `security/passwords.py` (scrypt), `security/staff_auth.py` (JWT HS256, secret `STAFF_JWT_SECRET` BEDA dari `BOOKING_TOKEN_SECRET`). User dimuat ulang tiap request, jadi menonaktifkan akun langsung berlaku. Frontend: `src/api/staff.ts`, `pages/StaffLoginPage.tsx`, `pages/StaffDashboardPage.tsx`, route `/staff` dan `/staff/login` (token di sessionStorage).
+- Nomor antrean diberikan saat pertama `confirmed`, per barber per hari WIB; pemberiannya diserialkan dengan kunci baris barber (`FOR NO KEY UPDATE`) dan dijaga indeks unik `uq_bookings_barber_local_day_queue`. Jangan hapus kuncinya: tanpa itu konfirmasi serentak saling kalah dan gagal 409.
+- Tes Playwright memakai mock API yang menulis header CORS sendiri; kecocokan CORS nyata hanya dibuktikan tes backend (`test_cors_preflight_*`).
 - `backend/app/errors.py` — format error seragam `{detail, code, request_id}` (`detail` tetap string, dipakai frontend); `observability.py` — logging + `X-Request-ID`. Log tidak boleh memuat nama, nomor HP, token, atau query string.
 - `backend/app/models.py` — 5 tabel; naming convention constraint di `NAMING_CONVENTION`
 - `backend/alembic/versions/` — migrasi; exclusion constraint `ex_bookings_barber_time_overlap` hanya PostgreSQL

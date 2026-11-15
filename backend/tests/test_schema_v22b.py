@@ -11,14 +11,15 @@ from sqlalchemy.orm import Session
 
 from app.models import Base, Barber, Booking, Customer, Schedule, Service
 
-TABLES = {"customers", "barbers", "services", "schedules", "bookings"}
+TABLES = {"customers", "barbers", "services", "schedules", "bookings", "staff_users"}
 
 
-def test_five_models_and_foreign_keys():
+def test_models_and_foreign_keys():
     assert TABLES == set(Base.metadata.tables)
     fks = {fk.target_fullname for fk in Base.metadata.tables["bookings"].foreign_keys}
     assert fks == {"customers.id", "barbers.id", "services.id"}
     assert {fk.target_fullname for fk in Base.metadata.tables["schedules"].foreign_keys} == {"barbers.id"}
+    assert {fk.target_fullname for fk in Base.metadata.tables["staff_users"].foreign_keys} == {"barbers.id"}
 
 
 def test_constraints_and_relationships_in_isolated_sqlite():
@@ -58,7 +59,7 @@ def test_migration_upgrade_downgrade_sqlite_smoke(tmp_path, monkeypatch):
     engine = create_engine(url)
     assert TABLES.issubset(set(inspect(engine).get_table_names()))
     with engine.connect() as conn:
-        assert conn.exec_driver_sql("SELECT version_num FROM alembic_version").scalar_one() == "20261115_02"
+        assert conn.exec_driver_sql("SELECT version_num FROM alembic_version").scalar_one() == "20261116_03"
     command.downgrade(config, "base")
     assert not TABLES.intersection(set(inspect(engine).get_table_names()))
     engine.dispose()

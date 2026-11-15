@@ -55,6 +55,8 @@ def test_policy_only_matches_expected_routes():
     assert _policy('GET', '/api/v1/availability')[0] == 'availability'
     assert _policy('GET', '/api/health') is None
     assert _policy('POST', '/api/v1/bookings/AB-DEMO') is None
+    assert _policy('POST', '/api/v1/staff/login')[0] == 'login'
+    assert _policy('GET', '/api/v1/staff/queue')[0] == 'staff'
 
 
 def test_http_429_and_retry_after(monkeypatch):

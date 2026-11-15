@@ -13,6 +13,10 @@ export type BookingView = {
   ends_at: string;
   status: string;
   price_idr: number;
+  // Only present on the detail endpoint (Periksa status); null/undefined until staff confirm.
+  queue_number?: number | null;
+  ahead_count?: number | null;
+  estimated_wait_minutes?: number | null;
 };
 
 export type StoredApiTicket = BookingView & { access_token: string };

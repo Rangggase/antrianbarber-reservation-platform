@@ -90,6 +90,30 @@ class Schedule(Base):
     barber: Mapped[Barber] = relationship(back_populates="schedules")
 
 
+class StaffUser(Base):
+    """Back-office account. role 'admin' sees every barber; role 'barber' only their own queue."""
+    __tablename__ = "staff_users"
+    __table_args__ = (
+        CheckConstraint("role IN ('admin', 'barber')", name="allowed_role"),
+        CheckConstraint(
+            "(role = 'barber' AND barber_id IS NOT NULL) OR (role = 'admin' AND barber_id IS NULL)",
+            name="barber_link",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    full_name: Mapped[str] = mapped_column(String(120), nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    role: Mapped[str] = mapped_column(String(16), nullable=False)
+    barber_id: Mapped[int | None] = mapped_column(ForeignKey("barbers.id", ondelete="RESTRICT"), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    barber: Mapped["Barber | None"] = relationship()
+
+
 class Booking(Base):
     __tablename__ = "bookings"
     __table_args__ = (

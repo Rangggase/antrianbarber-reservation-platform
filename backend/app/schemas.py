@@ -1,6 +1,7 @@
 """Pydantic request/response models for the reservation API."""
 from datetime import date, datetime
 import re
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -79,3 +80,65 @@ class BookingView(BaseModel):
 
 class BookingCreated(BookingView):
     access_token: str
+
+
+class BookingDetail(BookingView):
+    """Customer-facing detail: adds queue position info (no personal data)."""
+    queue_number: int | None = None
+    # Only for pending/confirmed bookings on the current local day.
+    ahead_count: int | None = None
+    estimated_wait_minutes: int | None = None
+
+
+# --- staff (back office) ---------------------------------------------------------
+
+BookingStatus = Literal["pending", "confirmed", "in_service", "completed", "cancelled", "no_show"]
+NewStatus = Literal["confirmed", "in_service", "completed", "cancelled", "no_show"]
+
+
+class StaffLogin(BaseModel):
+    username: str = Field(min_length=1, max_length=64)
+    password: str = Field(min_length=1, max_length=128)
+
+
+class StaffUserView(BaseModel):
+    id: int
+    username: str
+    full_name: str
+    role: Literal["admin", "barber"]
+    barber_id: int | None
+    model_config = {"from_attributes": True}
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int
+    user: StaffUserView
+
+
+class StatusChange(BaseModel):
+    status: NewStatus
+
+
+class StaffBooking(BaseModel):
+    reference_code: str
+    customer_name: str
+    customer_phone: str
+    barber_id: int
+    barber_name: str
+    service_id: int
+    service_name: str
+    starts_at: datetime
+    ends_at: datetime
+    status: BookingStatus
+    queue_number: int | None
+    price_idr: int
+    allowed_next: list[str]
+
+
+class QueueResponse(BaseModel):
+    date: date
+    barber_id: int | None
+    bookings: list[StaffBooking]
+    counts: dict[str, int]
