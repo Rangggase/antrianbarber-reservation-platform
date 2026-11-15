@@ -97,7 +97,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             if not allowed:
                 return JSONResponse(
                     status_code=429,
-                    content={'detail': 'Terlalu banyak permintaan. Coba lagi nanti.'},
+                    content={'detail': 'Terlalu banyak permintaan. Coba lagi nanti.', 'code': 'rate_limited'},
                     headers={'Retry-After': str(retry_after), 'Cache-Control': 'no-store'},
                 )
         return await call_next(request)

@@ -8,7 +8,8 @@ from app.models import Base  # registers all five tables
 
 config = context.config
 if config.config_file_name:
-    fileConfig(config.config_file_name)
+    # Keep application loggers alive when migrations run inside the same process (tests).
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 target_metadata = Base.metadata
 

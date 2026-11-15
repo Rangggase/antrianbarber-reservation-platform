@@ -7,7 +7,8 @@ Antrian Barber — proyek portofolio reservasi barbershop (mahasiswa Sistem Info
 **Backend** (dari `backend/`, Python venv di `.venv`)
 ```bash
 python -m pip install -r requirements-dev.txt
-python -m pytest -q                      # 36 tes, SQLite in-memory
+python -m pytest -q                      # 43 tes SQLite; +11 tes PostgreSQL bila TEST_DB_NAME diset
+TEST_DB_NAME=antrian_barber_test python -m scripts.create_test_db   # sekali; nama WAJIB berakhiran _test
 python -m alembic upgrade head           # butuh PostgreSQL + .env
 python -m uvicorn app.main:app --reload --port 8000
 ```
@@ -22,7 +23,8 @@ npx playwright test --project=chromium --workers=1   # 19 tes baseline, mode dem
 ```
 
 ## Struktur
-- `backend/app/api/reservations.py` — katalog, slot, booking, token (satu file besar; direncanakan dipecah)
+- `backend/app/api/reservations.py` — router tipis; aturan bisnis di `backend/app/services/booking_service.py`, model request/response di `schemas.py`
+- `backend/app/errors.py` — format error seragam `{detail, code, request_id}` (`detail` tetap string, dipakai frontend); `observability.py` — logging + `X-Request-ID`. Log tidak boleh memuat nama, nomor HP, token, atau query string.
 - `backend/app/models.py` — 5 tabel; naming convention constraint di `NAMING_CONVENTION`
 - `backend/alembic/versions/` — migrasi; exclusion constraint `ex_bookings_barber_time_overlap` hanya PostgreSQL
 - `backend/app/security/rate_limit.py` — rate limiter in-memory (satu proses)
@@ -36,7 +38,8 @@ npx playwright test --project=chromium --workers=1   # 19 tes baseline, mode dem
 - Sumber data frontend dipilih saat build lewat `VITE_DATA_SOURCE=api|demo` (default `demo`), bisa ditimpa per fitur; lihat `frontend/src/api/config.ts`. Build produksi mode API gagal bila `VITE_API_BASE_URL` kosong/tidak valid (guard di `vite.config.ts`).
 - Origin CORS backend dibaca dari `CORS_ORIGINS` (koma); wildcard dan path ditolak.
 - Bukti build produksi memakai API: `npm run e2e:prod-api` (API di-mock; butuh `npx playwright install chromium`).
-- Tes backend tidak menjangkau fitur khusus PostgreSQL.
+- Aturan di database (PostgreSQL saja): exclusion constraint `ex_bookings_barber_time_overlap` dan indeks unik parsial `uq_bookings_customer_local_day_active` (satu tiket aktif per pelanggan per hari WIB). Diuji di `tests/test_postgres_integration.py`; tes SQLite tidak menjangkaunya.
+- Tes PostgreSQL men-DROP skema database tes: jangan arahkan `TEST_DB_NAME`/`TEST_DATABASE_URL` ke database asli.
 - Gunakan data fiktif; jangan memasukkan data pelanggan nyata.
 - Folder backup dan patch lama ada di luar repo (`D:\archive_antrianbarber`); jangan dikembalikan ke repo.
 - Jangan push ke `main` atau force-push tanpa persetujuan pemilik.

@@ -32,7 +32,15 @@ Skrip seed idempoten dan hanya berisi data fiktif.
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
 ```
-Tes memakai SQLite in-memory, jadi **tidak menguji** constraint khusus PostgreSQL (exclusion constraint).
+Secara default tes memakai SQLite in-memory dan **melewati** tes PostgreSQL.
+
+**Tes integrasi PostgreSQL** (exclusion constraint, indeks unik per hari, balapan konkurensi) memakai database terpisah. Skemanya di-DROP lalu dibuat ulang, jadi namanya wajib berakhiran `_test` dan jangan diarahkan ke data asli:
+```powershell
+$env:TEST_DB_NAME = "antrian_barber_test"      # kredensial DB_* diambil dari .env
+.\.venv\Scripts\python.exe -m scripts.create_test_db
+.\.venv\Scripts\python.exe -m pytest -q
+```
+Alternatifnya set `TEST_DATABASE_URL` penuh (dipakai di CI).
 
 ## 5. Jalankan server
 ```powershell
@@ -50,14 +58,18 @@ Tes memakai SQLite in-memory, jadi **tidak menguji** constraint khusus PostgreSQ
 | GET | `/bookings/{reference_code}` | Lihat reservasi (header `X-Booking-Token`) |
 | POST | `/bookings/{reference_code}/cancel` | Batalkan reservasi (header `X-Booking-Token`) |
 
-Migrasi: lihat juga [README_MIGRATION_v2_2b.md](README_MIGRATION_v2_2b.md).
+**Format error** (semua endpoint): `{"detail": "<pesan>", "code": "<kode>", "request_id": "<id>"}`. Kode antara lain `slot_unavailable`, `slot_taken`, `customer_day_conflict`, `invalid_token`, `booking_not_found`, `validation_error` (disertai `errors[]`), `rate_limited`, `database_unavailable`, `internal_error`. Header `X-Request-ID` ada di setiap respons dan muncul di log.
+
+Migrasi: lihat juga [README_MIGRATION_v2_2b.md](README_MIGRATION_v2_2b.md). Migrasi `20261115_02` menambah indeks unik "satu tiket aktif per pelanggan per hari (WIB)"; jalankan `alembic upgrade head` pada database dev Anda.
 
 ## Struktur
 ```text
 backend/
 ├── app/
-│   ├── api/            # health.py, reservations.py
+│   ├── api/            # health.py, reservations.py (router tipis)
+│   ├── services/       # booking_service.py (aturan bisnis)
 │   ├── security/       # rate_limit.py
+│   ├── schemas.py  errors.py  observability.py
 │   ├── config.py  database.py  models.py  main.py
 ├── alembic/            # migrasi skema
 ├── scripts/            # seed data demo

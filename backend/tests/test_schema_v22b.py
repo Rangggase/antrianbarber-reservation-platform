@@ -58,7 +58,7 @@ def test_migration_upgrade_downgrade_sqlite_smoke(tmp_path, monkeypatch):
     engine = create_engine(url)
     assert TABLES.issubset(set(inspect(engine).get_table_names()))
     with engine.connect() as conn:
-        assert conn.exec_driver_sql("SELECT version_num FROM alembic_version").scalar_one() == "20261108_01"
+        assert conn.exec_driver_sql("SELECT version_num FROM alembic_version").scalar_one() == "20261115_02"
     command.downgrade(config, "base")
     assert not TABLES.intersection(set(inspect(engine).get_table_names()))
     engine.dispose()

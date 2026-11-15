@@ -3,7 +3,7 @@ import os
 import re
 from pathlib import Path
 from dotenv import load_dotenv
-from sqlalchemy.engine import URL
+from sqlalchemy.engine import URL, make_url
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
@@ -30,6 +30,31 @@ def get_cors_origins() -> list[str]:
         if not _ORIGIN_RE.fullmatch(origin):
             raise RuntimeError(f"CORS_ORIGINS entry is not a valid origin (no wildcard or path): {origin!r}")
     return origins
+
+
+def get_test_database_url():
+    """Database for PostgreSQL integration tests, or None when not configured.
+
+    TEST_DATABASE_URL wins; otherwise TEST_DB_NAME reuses the DB_* credentials.
+    The name must end with "_test" because the tests DROP and recreate the schema.
+    """
+    explicit = os.getenv("TEST_DATABASE_URL")
+    if explicit:
+        url = make_url(explicit)
+    elif os.getenv("TEST_DB_NAME"):
+        url = URL.create(
+            drivername="postgresql+psycopg",
+            username=os.getenv("DB_USER", "postgres"),
+            password=os.getenv("DB_PASSWORD", ""),
+            host=os.getenv("DB_HOST", "127.0.0.1"),
+            port=int(os.getenv("DB_PORT", "5432")),
+            database=os.getenv("TEST_DB_NAME"),
+        )
+    else:
+        return None
+    if not (url.database or "").endswith("_test"):
+        raise RuntimeError("Test database name must end with '_test' (the tests recreate its schema).")
+    return url
 
 
 def get_database_url():

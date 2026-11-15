@@ -10,8 +10,8 @@
 | v2.3 | API reservasi dan sinkronisasi frontend/backend (mode API di dev) | Selesai |
 | v2.4 | Keamanan dasar: token akses, rate limit, CORS | Selesai |
 | v2.5 | Sprint 0: fondasi (env, CI, dokumentasi sinkron) | Selesai |
-| v2.5.1 | Sprint 1: API di build produksi, CORS dari env | Berjalan (tes e2e produksi belum dijalankan) |
-| v2.6 | Tes PostgreSQL asli, refactor backend | Direncanakan |
+| v2.5.1 | Sprint 1: API di build produksi, CORS dari env | Selesai |
+| v2.6 | Sprint 2: tes PostgreSQL asli, indeks unik per hari, refactor backend, error seragam dan logging | Selesai (CI PostgreSQL belum dijalankan di GitHub) |
 | v2.7 | Login admin/barber, status antrean, dashboard | Direncanakan |
 | v2.8 | Laporan, manajemen jadwal, deployment dan studi kasus final | Direncanakan |
 
