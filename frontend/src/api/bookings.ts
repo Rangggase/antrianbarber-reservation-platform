@@ -1,10 +1,8 @@
-/** v2.3c. Browser-local development only; never put a DB secret in Vite env. */
+/** Booking transactions via FastAPI. Never put a DB secret in Vite env (see ./config.ts). */
 import { useLiveAvailability } from './availability';
+import { bookingsFromApi } from './config';
 
-export const useRealBooking =
-  import.meta.env.DEV &&
-  useLiveAvailability &&
-  import.meta.env.VITE_BOOKING_TRANSACTIONS_SOURCE === 'api';
+export const useRealBooking = useLiveAvailability && bookingsFromApi;
 
 // === TYPES & INTERFACES ===
 export type BookingView = {

@@ -6,7 +6,7 @@
 
 Antrian Barber transforms an early web-programming project into a responsive, multi-page reservation demo. Visitors can explore grooming services, view barber profiles, browse hairstyle inspiration, and complete a four-step booking flow.
 
-> **Project status — Fullstack demo (v2.4, in development).** The UI works in two modes. In **demo mode** (default, and the only mode in production builds) reservations are saved only in the current browser using `localStorage`. In **API mode** (`npm run dev` with `VITE_*_SOURCE=api`, see `.env.example`) the UI uses the FastAPI backend in `../backend` for catalog, availability and bookings. There is no admin dashboard, payment processing, or active barbershop service. All staff profiles, prices, schedules, and tickets are illustrative. Please use fictional customer information.
+> **Project status — Fullstack demo (v2.4, in development).** The UI works in two modes. In **demo mode** (default, and the only mode in production builds) reservations are saved only in the current browser using `localStorage`. In **API mode** (`VITE_DATA_SOURCE=api` plus `VITE_API_BASE_URL`, in dev or at build time; see `.env.example`) the UI uses the FastAPI backend in `../backend` for catalog, availability and bookings. The default stays demo mode until a backend is deployed. There is no admin dashboard, payment processing, or active barbershop service. All staff profiles, prices, schedules, and tickets are illustrative. Please use fictional customer information.
 
 ![Antrian Barber homepage preview](docs/assets/home-preview.webp)
 
@@ -113,7 +113,7 @@ The two reported Lighthouse audits used different device modes, but the per-page
 
 ## What's next
 
-The backend (FastAPI, PostgreSQL, SQLAlchemy, Alembic) and API-mode integration exist. Planned next: using the API in production builds, a protected admin/barber dashboard with queue status management, and reporting. See the [roadmap](docs/ROADMAP.md).
+The backend (FastAPI, PostgreSQL, SQLAlchemy, Alembic) and API-mode integration exist, including production builds. Planned next: PostgreSQL-backed tests, a protected admin/barber dashboard with queue status management, and reporting. See the [roadmap](docs/ROADMAP.md).
 
 ## Project background
 

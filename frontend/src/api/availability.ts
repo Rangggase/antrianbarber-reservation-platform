@@ -1,11 +1,8 @@
 import { useEffect, useState } from 'react';
+import { availabilityFromApi } from './config';
 
-/**
- * v2.3b: availability is READ-ONLY. Production Vercel remains demo.
- * Only v2.3c will POST reservations to FastAPI/PostgreSQL.
- */
-export const useLiveAvailability =
-  import.meta.env.DEV && import.meta.env.VITE_BOOKING_AVAILABILITY_SOURCE === 'api';
+/** Slot availability is read-only; the source is chosen at build time (see ./config.ts). */
+export const useLiveAvailability = availabilityFromApi;
 
 export type AvailabilitySlot = { label: string; iso: string };
 type AvailabilityState = {
@@ -27,7 +24,7 @@ const empty: AvailabilitySlot[] = [];
 function apiOrigin(): string {
   const base: unknown = import.meta.env.VITE_API_BASE_URL;
   if (typeof base !== 'string' || !base.trim()) {
-    throw new Error('VITE_API_BASE_URL belum diatur pada .env.development.local.');
+    throw new Error('VITE_API_BASE_URL belum diatur.');
   }
   let url: URL;
   try { url = new URL(base); }

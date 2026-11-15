@@ -2,7 +2,7 @@
 
 ## Scope
 
-Dokumen ini menjelaskan frontend React. Backend FastAPI + PostgreSQL ada di `../backend` dan terhubung lewat **mode API** (hanya saat `npm run dev` dengan `VITE_*_SOURCE=api`). Pada build produksi dan mode demo, "reservation" adalah simulasi lokal. Belum ada autentikasi admin.
+Dokumen ini menjelaskan frontend React. Backend FastAPI + PostgreSQL ada di `../backend` dan terhubung lewat **mode API** (`VITE_DATA_SOURCE=api` + `VITE_API_BASE_URL`, berlaku di dev maupun build produksi). Pada mode demo (default), "reservation" adalah simulasi lokal. Belum ada autentikasi admin.
 
 ```mermaid
 flowchart TD

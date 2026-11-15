@@ -9,8 +9,9 @@
 | v2.2 | FastAPI, PostgreSQL, migrasi skema | Selesai |
 | v2.3 | API reservasi dan sinkronisasi frontend/backend (mode API di dev) | Selesai |
 | v2.4 | Keamanan dasar: token akses, rate limit, CORS | Selesai |
-| v2.5 | Sprint 0: fondasi (env, CI, dokumentasi sinkron) | Berjalan |
-| v2.6 | API di build produksi, tes PostgreSQL asli, refactor backend | Direncanakan |
+| v2.5 | Sprint 0: fondasi (env, CI, dokumentasi sinkron) | Selesai |
+| v2.5.1 | Sprint 1: API di build produksi, CORS dari env | Berjalan (tes e2e produksi belum dijalankan) |
+| v2.6 | Tes PostgreSQL asli, refactor backend | Direncanakan |
 | v2.7 | Login admin/barber, status antrean, dashboard | Direncanakan |
 | v2.8 | Laporan, manajemen jadwal, deployment dan studi kasus final | Direncanakan |
 

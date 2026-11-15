@@ -4,7 +4,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   // API-mocked specs run through their own configs (see npm scripts).
-  testIgnore: ['availability.spec.ts', 'bookings.spec.ts'],
+  testIgnore: ['availability.spec.ts', 'bookings.spec.ts', 'production-api.spec.ts'],
   timeout: 30_000,
   expect: { timeout: 10_000 },
   fullyParallel: true,

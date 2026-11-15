@@ -2,7 +2,7 @@
 
 Aplikasi reservasi antrian barbershop, dibangun sebagai project portofolio.
 
-**Status:** demo fullstack dalam pengembangan. Frontend dapat berjalan mandiri (mode demo, `localStorage`) atau terhubung ke backend FastAPI + PostgreSQL (mode API, saat `npm run dev`). Belum ada dashboard admin dan belum ada deployment publik. Lihat [roadmap](frontend/docs/ROADMAP.md).
+**Status:** demo fullstack dalam pengembangan. Frontend dapat berjalan mandiri (mode demo, `localStorage`) atau terhubung ke backend FastAPI + PostgreSQL (mode API, lewat `VITE_DATA_SOURCE=api`, termasuk build produksi). Belum ada dashboard admin dan belum ada deployment publik. Lihat [roadmap](frontend/docs/ROADMAP.md).
 
 ## Struktur
 

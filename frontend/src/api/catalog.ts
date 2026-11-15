@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
+import { catalogFromApi } from './config';
 
 /**
- * v2.3a: mode API hanya aktif di Vite dev. Production Vercel tetap demo.
- * Gunakan .env.development.local untuk pengaturan lokal (jangan berisi rahasia).
+ * Mode API ditentukan saat build/dev lewat variabel VITE_* (lihat ./config.ts).
+ * Default tetap demo. Jangan simpan rahasia di variabel VITE_*.
  */
-export const useLiveCatalog = import.meta.env.DEV && import.meta.env.VITE_CATALOG_SOURCE === 'api';
+export const useLiveCatalog = catalogFromApi;
 
 export type ApiService = {
   id: number;
@@ -52,7 +53,7 @@ type CatalogState<T> =
 function getApiUrl(resource: Resource) {
   const base = import.meta.env.VITE_API_BASE_URL;
   if (typeof base !== 'string' || base.trim() === '') {
-    throw new Error('VITE_API_BASE_URL belum diatur dalam .env.development.local.');
+    throw new Error('VITE_API_BASE_URL belum diatur.');
   }
   let url: URL;
   try { url = new URL(base); }
