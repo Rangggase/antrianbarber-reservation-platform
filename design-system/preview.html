@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Papan desain Antrian Barber — pratinjau Sprint 5</title>
+<style>
+  :root {
+    --page: #F1F3F2; --surface: #FFFFFF; --ink: #0F1B2D; --ink-2: #3A475B; --muted: #566174;
+    --line: #D5DAD8; --control: #7C8797; --action: #1D4FC4; --action-2: #163C9C; --ticket: #F4E3A1;
+    --danger: #B3261E; --danger-bg: #FBE9E7; --success: #1B6E45; --success-bg: #E1F1E8;
+    --progress: #0B6F7A; --progress-bg: #DAF0F2; --warn: #6B4E00; --warn-bg: #FBEFC5; --neutral: #3F4B5C; --neutral-bg: #E4E8E7;
+    --on-ink: #E8EDF3;
+    --font: "Archivo Variable", "Archivo", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 400 16px/1.55 var(--font); font-variant-numeric: tabular-nums lining-nums; }
+  a, button { font: inherit; }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 32px 24px 96px; }
+  h1 { font: 700 32px/1.1 var(--font); letter-spacing: -.02em; margin: 0 0 8px; }
+  h2 { font: 650 22px/1.2 var(--font); margin: 56px 0 16px; letter-spacing: -.01em; }
+  h3 { font: 600 17px/1.3 var(--font); margin: 0 0 8px; }
+  p { margin: 0 0 12px; }
+  .muted { color: var(--muted); font-size: 14px; }
+  .note { background: var(--warn-bg); color: var(--warn); padding: 12px 16px; border-radius: 4px; font-size: 14px; margin: 16px 0 0; }
+  .grid { display: grid; gap: 16px; }
+  .swatches { grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); }
+  .sw { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+  .sw i { display: block; height: 64px; }
+  .sw div { padding: 10px 12px; font-size: 13px; line-height: 1.4; }
+  .sw b { display: block; font-size: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 20px; }
+  .cols2 { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 760px) { .cols2 { grid-template-columns: 1fr; } }
+
+  /* buttons */
+  .btn { min-height: 44px; padding: 0 20px; border-radius: 8px; border: 1px solid var(--ink); background: transparent; color: var(--ink); font-weight: 600; cursor: pointer; }
+  .btn.primary { background: var(--action); border-color: var(--action); color: #fff; }
+  .btn.primary:hover { background: var(--action-2); }
+  .btn.quiet { border-color: transparent; color: var(--action); }
+  .btn.danger { border-color: var(--danger); color: var(--danger); }
+  .btn:focus-visible, .radio:focus-visible, .slot:focus-visible { outline: 3px solid var(--action); outline-offset: 2px; box-shadow: 0 0 0 2px #fff; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+  /* numerals comparison */
+  .cmp { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .tcol { flex: 1 1 280px; min-width: 0; max-width: 340px; }
+  .cmp > div { padding: 20px; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); }
+  .cmp .old { font-family: Georgia, serif; font-variant-numeric: normal; } /* the real app: Georgia's default old-style figures */
+  .cmp .big { font-size: 44px; font-weight: 600; line-height: 1.1; margin: 6px 0; }
+  .cmp .new .big { font: 800 52px/1 var(--font); letter-spacing: -.04em; }
+  .tag { display: inline-block; font-size: 13px; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: var(--danger-bg); color: var(--danger); }
+  .new .tag { background: var(--success-bg); color: var(--success); }
+
+  /* ticket */
+  .ticket { width: 340px; max-width: 100%; background: var(--ticket); border-radius: 6px; position: relative; overflow: hidden; box-shadow: 0 1px 0 rgba(15,27,45,.12), 0 6px 14px -8px rgba(15,27,45,.35); color: var(--ink); }
+  .ticket .top { padding: 18px 20px 16px; }
+  .ticket .brand { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+  .ticket .svc { font: 650 20px/1.25 var(--font); margin: 14px 0 2px; }
+  .ticket .who { font-size: 15px; color: var(--ink-2); }
+  .perf { position: relative; height: 22px; }
+  .perf::before { content: ""; position: absolute; left: 14px; right: 14px; top: 10px; border-top: 2px dashed rgba(15,27,45,.35); }
+  .perf::after, .perf i { content: ""; position: absolute; top: 1px; width: 20px; height: 20px; border-radius: 50%; background: var(--page); }
+  .perf::after { left: -10px; } .perf i { right: -10px; }
+  .ticket .stub { padding: 8px 20px 18px; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: end; }
+  .ticket .time { font: 800 64px/.95 var(--font); letter-spacing: -.045em; }
+  .ticket .price { font-weight: 600; font-size: 16px; text-align: right; }
+  .ticket .num { grid-column: 1 / -1; font-size: 14px; color: var(--ink-2); display: flex; justify-content: space-between; gap: 8px; }
+  .ticket .num b { font-weight: 700; color: var(--ink); }
+  .ticket .code { grid-column: 1 / -1; font-size: 13px; color: var(--ink-2); letter-spacing: .02em; }
+  .ticket.printed { animation: print 480ms cubic-bezier(.2,.8,.2,1) both; transform-origin: top center; }
+  @keyframes print { from { transform: translateY(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .ticket.printed { animation: none; } }
+
+  /* booking mock */
+  .site-head { background: var(--ink); color: var(--on-ink); display: flex; justify-content: space-between; align-items: center; padding: 0 24px; height: 56px; border-radius: 4px 4px 0 0; }
+  .site-head b { font-weight: 700; letter-spacing: -.01em; }
+  .site-head .btn.primary { min-height: 40px; }
+  .strip { background: var(--surface); border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); padding: 8px 24px; }
+  .booking { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 40px; padding: 28px 24px 32px; background: var(--page); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 4px 4px; }
+  @media (max-width: 900px) { .booking { grid-template-columns: minmax(0, 1fr); } }
+  .steps { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--muted); margin: 8px 0 24px; flex-wrap: wrap; }
+  .steps .on { color: var(--ink); font-weight: 700; }
+  .steps s { text-decoration: none; display: inline-block; width: 24px; border-top: 1px solid var(--control); }
+  .choices { display: grid; gap: 8px; margin-bottom: 24px; }
+  .radio { display: grid; grid-template-columns: 24px 1fr auto; gap: 12px; align-items: center; min-height: 56px; padding: 8px 16px; background: var(--surface); border: 1px solid var(--control); border-radius: 8px; cursor: pointer; text-align: left; width: 100%; }
+  .radio .dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--control); }
+  .radio[aria-checked="true"] { border-color: var(--action); box-shadow: inset 0 0 0 1px var(--action); }
+  .radio[aria-checked="true"] .dot { border-color: var(--action); background: radial-gradient(var(--action) 45%, transparent 50%); }
+  .radio small { display: block; font-size: 13px; color: var(--muted); }
+  .radio .p { font-weight: 600; }
+  .sticky-note { font-size: 13px; color: var(--muted); margin-top: 12px; max-width: 340px; }
+
+  /* day strip + slots */
+  .days { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 20px; }
+  .day { flex: 0 0 auto; min-width: 72px; min-height: 64px; border: 1px solid var(--control); background: var(--surface); border-radius: 8px; padding: 6px 10px; text-align: center; cursor: pointer; }
+  .day small { display: block; font-size: 13px; color: var(--muted); }
+  .day b { font-size: 18px; }
+  .day[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .day[aria-pressed="true"] small { color: var(--on-ink); }
+  .part { font: 600 14px/1.4 var(--font); color: var(--ink-2); margin: 16px 0 8px; }
+  .slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+  .slot { min-height: 44px; border: 1px solid var(--control); background: var(--surface); border-radius: 8px; font-weight: 600; cursor: pointer; }
+  .slot[aria-checked="true"] { background: var(--action); border-color: var(--action); color: #fff; }
+  .slot:disabled { background: transparent; border-style: dashed; color: var(--muted); cursor: not-allowed; }
+  .slot:disabled span { display: block; font-size: 13px; font-weight: 450; }
+
+  /* badges */
+  .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 650; padding: 4px 10px; border-radius: 4px; }
+  .badge svg { width: 16px; height: 16px; flex: none; }
+  .b-pending { background: var(--warn-bg); color: var(--warn); } .b-confirmed { background: var(--success-bg); color: var(--success); }
+  .b-serving { background: var(--progress-bg); color: var(--progress); } .b-done { background: var(--neutral-bg); color: var(--neutral); }
+  .b-cancel { background: var(--danger-bg); color: var(--danger); }
+
+  /* staff */
+  .staff { display: grid; grid-template-columns: 220px minmax(0, 1fr); background: var(--page); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+  .rail { background: var(--ink); color: var(--on-ink); padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; min-height: 560px; }
+  .rail b { padding: 0 12px 16px; font-size: 17px; }
+  .rail a { display: flex; gap: 10px; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 6px; color: var(--on-ink); text-decoration: none; font-size: 15px; }
+  .rail a[aria-current] { background: rgba(255,255,255,.12); font-weight: 650; }
+  .rail .me { margin-top: auto; padding: 12px; font-size: 13px; border-top: 1px solid rgba(255,255,255,.18); }
+  /* must come AFTER the base .rail rule: equal specificity, last one wins */
+  @media (max-width: 860px) { .staff { grid-template-columns: minmax(0, 1fr); } .rail { display: none; } }
+  .main { padding: 24px; }
+  .main h3 { font: 700 26px/1.15 var(--font); letter-spacing: -.02em; margin: 0 0 16px; }
+  .now { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  @media (max-width: 700px) { .now { grid-template-columns: 1fr; } }
+  .nowc { background: var(--ink); color: var(--on-ink); border-radius: 4px; padding: 16px 18px; display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; align-items: center; }
+  .nowc .who { grid-column: 1 / -1; font-size: 13px; color: #B9C4D3; }
+  .nowc .n { font: 800 56px/.95 var(--font); letter-spacing: -.045em; color: var(--ticket); }
+  .nowc .nm { font-weight: 650; font-size: 18px; } .nowc .nm small { display: block; font-weight: 450; font-size: 14px; color: #B9C4D3; }
+  .nowc .btn { grid-column: 1 / -1; background: var(--ticket); border-color: var(--ticket); color: var(--ink); margin-top: 8px; }
+  .nowc.empty .n { color: #8A97AA; }
+  @media (max-width: 480px) { .nowc { grid-template-columns: 1fr; } .nowc .n { font-size: 48px; } }
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 8px; overflow-x: auto; }
+  .tab { min-height: 44px; padding: 0 14px; border: 0; background: transparent; font-weight: 600; color: var(--muted); border-bottom: 3px solid transparent; cursor: pointer; white-space: nowrap; }
+  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--action); }
+  .qrow { display: grid; grid-template-columns: 64px 56px minmax(0, 1fr) auto auto; gap: 16px; align-items: center; background: var(--surface); border-bottom: 1px solid var(--line); padding: 10px 16px; min-height: 64px; }
+  .qrow .t { font: 700 20px/1 var(--font); letter-spacing: -.02em; } .qrow .q { font-weight: 700; color: var(--ink-2); }
+  .qrow .nm small { display: block; font-size: 13px; color: var(--muted); } .qrow a { color: var(--action); }
+  @media (max-width: 700px) { .qrow { grid-template-columns: 56px 1fr; } .qrow .badge, .qrow .row { grid-column: 1 / -1; } }
+
+  /* phones */
+  .phones { display: flex; gap: 24px; flex-wrap: wrap; }
+  .phone { width: 390px; max-width: 100%; background: var(--page); border: 1px solid var(--control); border-radius: 24px; overflow: hidden; position: relative; min-height: 640px; padding-bottom: 96px; }
+  .phone .pbar { background: var(--ink); color: var(--on-ink); height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; }
+  .phone .pbody { padding: 16px; }
+  .phone h4 { font: 700 24px/1.15 var(--font); letter-spacing: -.02em; margin: 4px 0 4px; }
+  .bottom { position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); padding: 10px 16px 14px; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; }
+  .bottom .s { font-size: 14px; font-weight: 600; } .bottom .s small { display: block; color: var(--muted); font-weight: 450; font-size: 13px; }
+  .tabbar { position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(3, 1fr); }
+  .tabbar a { min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 13px; color: var(--muted); text-decoration: none; }
+  .tabbar a[aria-current] { color: var(--action); font-weight: 700; }
+  .qcard { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 12px 14px; margin: 8px 0; display: grid; gap: 6px; }
+  .qcard .t { font: 700 22px/1 var(--font); letter-spacing: -.02em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Papan desain — Antrian Barber</h1>
+  <p class="muted">Pratinjau rencana Sprint 5. Ini bukan aplikasi dan tidak mengubah kode frontend. Sumber kebenaran: <code>design-system/MASTER.md</code>.</p>
+  <p class="note"><b>Catatan fidelitas:</b> keluarga huruf Archivo belum dipasang di mesin ini, jadi pratinjau memakai font sistem (Segoe UI). Proporsi angka karcis akan sedikit berbeda (lebih <i>condensed</i> dengan Archivo). Ikon navigasi staf di sini masih glyph sementara; implementasi memakai lucide-react. Warna, tata letak, ukuran target, dan struktur komponen sudah mewakili rencana.</p>
+
+  <h2>1. Angka yang terbaca benar</h2>
+  <p class="muted">Temuan A2: Georgia memakai angka <i>old-style</i> sehingga “0” tampak seperti huruf O dan “001” seperti “oo1”. Nomor antrean dan jam adalah data terpenting produk ini.</p>
+  <div class="cmp">
+    <div class="old"><span class="tag">Sekarang · Georgia</span><div class="big">09:00 &nbsp; AB-001</div><div>0 tiket demo tercatat · Rp 3.540.000</div></div>
+    <div class="new"><span class="tag">Rencana · angka tabular-lining</span><div class="big">09:00 &nbsp; AB-001</div><div>0 tiket tercatat · Rp 3.540.000</div></div>
+  </div>
+
+  <h2>2. Palet</h2>
+  <div class="grid swatches">
+    <div class="sw"><i style="background:#F1F3F2"></i><div><b>Kapur</b>#F1F3F2 · latar halaman</div></div>
+    <div class="sw"><i style="background:#FFFFFF;border-bottom:1px solid var(--line)"></i><div><b>Putih</b>#FFFFFF · kartu, input</div></div>
+    <div class="sw"><i style="background:#0F1B2D"></i><div><b>Tinta</b>#0F1B2D · teks 15,5:1</div></div>
+    <div class="sw"><i style="background:#3A475B"></i><div><b>Tinta 2</b>#3A475B · sekunder 8,4:1</div></div>
+    <div class="sw"><i style="background:#566174"></i><div><b>Redam</b>#566174 · caption 5,6:1</div></div>
+    <div class="sw"><i style="background:#1D4FC4"></i><div><b>Biru Pole</b>#1D4FC4 · satu-satunya aksi 7,1:1</div></div>
+    <div class="sw"><i style="background:#F4E3A1"></i><div><b>Karcis</b>#F4E3A1 · hanya komponen karcis</div></div>
+    <div class="sw"><i style="background:#B3261E"></i><div><b>Merah Tiang</b>#B3261E · hanya bahaya</div></div>
+    <div class="sw"><i style="background:#1B6E45"></i><div><b>Hijau</b>#1B6E45 · terkonfirmasi</div></div>
+    <div class="sw"><i style="background:#0B6F7A"></i><div><b>Tosca</b>#0B6F7A · dilayani</div></div>
+    <div class="sw"><i style="background:#6B4E00"></i><div><b>Amber</b>#6B4E00 · menunggu</div></div>
+    <div class="sw"><i style="background:#7C8797"></i><div><b>Kontrol</b>#7C8797 · batas input 3,6:1</div></div>
+  </div>
+
+  <h2>3. Tombol, status, dan fokus</h2>
+  <div class="card">
+    <div class="row" style="margin-bottom:16px">
+      <button class="btn primary">Ambil karcis</button><button class="btn">Kembali</button><button class="btn quiet">Tanggal lain</button><button class="btn danger">Batalkan reservasi</button>
+    </div>
+    <div class="row">
+      <span class="badge b-pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Menunggu</span>
+      <span class="badge b-confirmed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M5 12l4 4 10-10"/></svg>Terkonfirmasi</span>
+      <span class="badge b-serving"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.1 15.9M14.5 14.5L20 20M8.1 8.1L12 12"/></svg>Dilayani</span>
+      <span class="badge b-done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M5 12l4 4 10-10"/></svg>Selesai</span>
+      <span class="badge b-cancel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M6 6l12 12M18 6L6 18"/></svg>Dibatalkan</span>
+    </div>
+    <p class="muted" style="margin-top:12px">Status selalu ikon + teks + warna. Cincin fokus 3px biru dengan selisih putih 2px (tekan Tab pada tombol di atas).</p>
+  </div>
+
+  <h2>4. Karcis (elemen yang diingat)</h2>
+  <div class="row" style="align-items:flex-start;gap:32px">
+    <div class="tcol">
+      <p class="muted">Sebelum dikonfirmasi: angka besar = jam. Nomor diberikan oleh barber.</p>
+      <div class="ticket" id="t1"><div class="top"><div class="brand"><span>Antrian Barber</span><span>Sen 16 Nov</span></div><div class="svc">Fade &amp; Taper</div><div class="who">Raka Pratama</div></div><div class="perf"><i></i></div>
+        <div class="stub"><div class="time">14.30</div><div class="price">Rp 75.000</div><div class="num"><span>Nomor antre</span><b>—</b></div><div class="code">AB-20261116-3F9A2C</div></div></div>
+      <p class="sticky-note">“Diberikan saat barber mengonfirmasi.”</p>
+    </div>
+    <div class="tcol">
+      <p class="muted">Setelah dikonfirmasi: nomor antrean menjadi angka besar.</p>
+      <div class="ticket printed" id="t2"><div class="top"><div class="brand"><span>Antrian Barber</span><span>Sen 16 Nov</span></div><div class="svc">Fade &amp; Taper</div><div class="who">Raka Pratama · 14.30</div></div><div class="perf"><i></i></div>
+        <div class="stub"><div class="time">No. 07</div><div class="price">Rp 75.000</div><div class="num"><span>Di depan Anda</span><b>2 antrean · ±90 menit</b></div><div class="code">AB-20261116-3F9A2C</div></div></div>
+      <p class="row" style="margin-top:12px"><button class="btn" onclick="var t=document.getElementById('t2');t.classList.remove('printed');void t.offsetWidth;t.classList.add('printed')">Putar animasi “tercetak”</button></p>
+    </div>
+  </div>
+
+  <h2>5. Booking pelanggan (desktop)</h2>
+  <div class="site-head"><b>Antrian Barber</b><span class="row" style="gap:24px"><span>Layanan</span><span>Barber</span><span>Tentang</span><button class="btn primary">Pesan</button></span></div>
+  <div class="strip">Demo portofolio · gunakan data fiktif</div>
+  <div class="booking">
+    <div>
+      <h1 style="font-size:34px">Pesan karcis antrean</h1>
+      <div class="steps"><span class="on">1 Layanan &amp; barber</span><s></s><span>2 Waktu</span><s></s><span>3 Data diri</span></div>
+      <h3>Pilih layanan</h3>
+      <div class="choices" role="radiogroup" aria-label="Layanan">
+        <button class="radio" role="radio" aria-checked="false"><span class="dot"></span><span>Classic Haircut<small>45 menit</small></span><span class="p">Rp 55.000</span></button>
+        <button class="radio" role="radio" aria-checked="true"><span class="dot"></span><span>Fade &amp; Taper<small>60 menit</small></span><span class="p">Rp 75.000</span></button>
+        <button class="radio" role="radio" aria-checked="false"><span class="dot"></span><span>Beard Trim<small>30 menit</small></span><span class="p">Rp 35.000</span></button>
+      </div>
+      <h3>Pilih barber</h3>
+      <div class="choices" role="radiogroup" aria-label="Barber">
+        <button class="radio" role="radio" aria-checked="true"><span class="dot"></span><span>Raka Pratama<small>Fade &amp; taper</small></span><span class="p">Terdekat 14.30</span></button>
+        <button class="radio" role="radio" aria-checked="false"><span class="dot"></span><span>Dimas Putra<small>Classic &amp; jenggot</small></span><span class="p">Terdekat 10.00</span></button>
+      </div>
+      <div class="row" style="justify-content:flex-end"><button class="btn">Kembali</button><button class="btn primary">Lanjut</button></div>
+    </div>
+    <aside>
+      <div class="ticket"><div class="top"><div class="brand"><span>Antrian Barber</span><span>Sen 16 Nov</span></div><div class="svc">Fade &amp; Taper</div><div class="who">Raka Pratama</div></div><div class="perf"><i></i></div>
+        <div class="stub"><div class="time">14.30</div><div class="price">Rp 75.000</div><div class="num"><span>Nomor antre</span><b>—</b></div></div></div>
+      <p class="sticky-note">Karcis terisi seiring pilihan Anda, menggantikan sidebar dan langkah “Konfirmasi”.</p>
+    </aside>
+  </div>
+
+  <h2>6. Pilih waktu: DayStrip + SlotPicker</h2>
+  <div class="card" style="max-width:640px">
+    <div class="days" role="group" aria-label="Pilih tanggal">
+      <button class="day" aria-pressed="true"><small>Hari ini</small><b>16</b></button><button class="day" aria-pressed="false"><small>Besok</small><b>17</b></button>
+      <button class="day" aria-pressed="false"><small>Rab</small><b>18</b></button><button class="day" aria-pressed="false"><small>Kam</small><b>19</b></button>
+      <button class="day" aria-pressed="false"><small>Jum</small><b>20</b></button><button class="day" aria-pressed="false"><small>Sab</small><b>21</b></button>
+    </div>
+    <div class="row" style="margin:-8px 0 8px"><button class="btn quiet" style="min-height:44px;padding:0 4px">Tanggal lain</button><span class="muted">Terdekat: 14.30</span></div>
+    <div class="part">Pagi</div><div class="slots" role="radiogroup" aria-label="Jam pagi"><button class="slot" role="radio" aria-checked="false" disabled>09.00<span>Penuh</span></button><button class="slot" role="radio" aria-checked="false">09.30</button><button class="slot" role="radio" aria-checked="false">10.00</button><button class="slot" role="radio" aria-checked="false">11.30</button></div>
+    <div class="part">Siang</div><div class="slots" role="radiogroup" aria-label="Jam siang"><button class="slot" role="radio" aria-checked="false">12.00</button><button class="slot" role="radio" aria-checked="false">13.00</button><button class="slot" role="radio" aria-checked="true">14.30</button><button class="slot" role="radio" aria-checked="false" disabled>15.00<span>Penuh</span></button></div>
+    <p class="muted" style="margin-top:12px">Slot penuh memakai teks “Penuh” dan batas putus-putus, bukan hanya warna pudar.</p>
+  </div>
+
+  <h2>7. Dasbor staf (desktop)</h2>
+  <div class="staff">
+    <nav class="rail" aria-label="Navigasi staf"><b>Antrian Barber</b>
+      <a aria-current="page" href="#">▣ Antrean</a><a href="#">▤ Laporan</a><a href="#">▦ Jadwal</a>
+      <div class="me">Admin Barber<br><a href="#" style="padding:0;min-height:44px">Keluar</a></div></nav>
+    <div class="main">
+      <h3>Antrean hari ini · Sen 16 Nov</h3>
+      <div class="now">
+        <div class="nowc"><span class="who">Raka · sedang dilayani</span><span class="n">No. 07</span><span class="nm">Sari Wulandari<small>Fade &amp; Taper · mulai 09.30</small></span><button class="btn">Selesai</button></div>
+        <div class="nowc empty"><span class="who">Dimas · kursi kosong</span><span class="n">—</span><span class="nm">Tidak ada yang dilayani<small>Berikutnya No. 08 · Rina M. · 11.00</small></span><button class="btn">Mulai layanan No. 08</button></div>
+      </div>
+      <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true">Perlu dikonfirmasi 2</button><button class="tab" role="tab" aria-selected="false">Antrean 3</button><button class="tab" role="tab" aria-selected="false">Dilayani 1</button><button class="tab" role="tab" aria-selected="false">Selesai 1</button></div>
+      <div class="qrow"><span class="t">11.00</span><span class="q">—</span><span class="nm">Rina Marlina<small>Fade &amp; Taper · Dimas · <a href="#">081234500004</a></small></span><span class="badge b-pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Menunggu</span><span class="row"><button class="btn primary">Konfirmasi</button><button class="btn danger">Batalkan</button></span></div>
+      <div class="qrow"><span class="t">13.00</span><span class="q">—</span><span class="nm">Dewi Lestari<small>Fade &amp; Taper · Raka · <a href="#">081234500005</a></small></span><span class="badge b-pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Menunggu</span><span class="row"><button class="btn primary">Konfirmasi</button><button class="btn danger">Batalkan</button></span></div>
+    </div>
+  </div>
+
+  <h2>8. Ponsel (390px)</h2>
+  <div class="phones">
+    <div class="phone"><div class="pbar"><b>Antrian Barber</b><span>☰</span></div><div class="strip" style="padding:6px 16px">Demo · data fiktif</div>
+      <div class="pbody"><h4>Pesan karcis antrean</h4><p class="muted">Langkah 2 dari 3 · Waktu</p>
+        <div class="days"><button class="day" aria-pressed="true"><small>Hari ini</small><b>16</b></button><button class="day" aria-pressed="false"><small>Besok</small><b>17</b></button><button class="day" aria-pressed="false"><small>Rab</small><b>18</b></button></div>
+        <div class="part">Siang</div><div class="slots"><button class="slot" role="radio" aria-checked="false">12.00</button><button class="slot" role="radio" aria-checked="true">14.30</button><button class="slot" role="radio" aria-checked="false" disabled>15.00<span>Penuh</span></button></div>
+        <div class="part">Sore</div><div class="slots"><button class="slot" role="radio" aria-checked="false">16.00</button><button class="slot" role="radio" aria-checked="false">16.30</button><button class="slot" role="radio" aria-checked="false">17.00</button></div></div>
+      <div class="bottom"><div class="s">Fade · Raka · 14.30<small>Rp 75.000</small></div><button class="btn primary">Lanjut</button></div></div>
+    <div class="phone"><div class="pbar"><b>Antrian Barber</b><span>Admin ▾</span></div>
+      <div class="pbody"><h4>Antrean hari ini</h4><p class="muted">Sen 16 Nov · Semua barber</p>
+        <div class="nowc" style="margin-bottom:12px"><span class="who">Raka · sedang dilayani</span><span class="n">No. 07</span><span class="nm">Sari Wulandari<small>Fade &amp; Taper · 09.30</small></span><button class="btn">Selesai</button></div>
+        <div class="tabs"><button class="tab" role="tab" aria-selected="true">Konfirmasi 2</button><button class="tab" role="tab" aria-selected="false">Antrean 3</button><button class="tab" role="tab" aria-selected="false">Selesai 1</button></div>
+        <div class="qcard"><div class="row" style="justify-content:space-between"><span class="t">11.00</span><span class="badge b-pending">Menunggu</span></div><div><b>Rina Marlina</b><br><span class="muted">Fade &amp; Taper · Dimas</span></div><div class="row"><button class="btn primary">Konfirmasi</button><button class="btn danger">Batalkan</button></div></div></div>
+      <nav class="tabbar" aria-label="Navigasi staf"><a aria-current="page" href="#">▣<span>Antrean</span></a><a href="#">▤<span>Laporan</span></a><a href="#">▦<span>Jadwal</span></a></nav></div>
+  </div>
+</div>
+</body>
+</html>

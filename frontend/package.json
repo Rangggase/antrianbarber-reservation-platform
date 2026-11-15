@@ -9,9 +9,12 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "e2e:prod-api": "playwright test -c playwright.production-api.config.ts --workers=1",
-    "e2e:staff": "playwright test -c playwright.staff.config.ts --workers=1"
+    "e2e:staff": "playwright test -c playwright.staff.config.ts --workers=1",
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "e2e:ui": "playwright test -c playwright.ui.config.ts --workers=1"
   },
   "dependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
     "@tailwindcss/vite": "^4.3.4",
     "lucide-react": "^1.70.0",
     "react": "^19.3.1",
