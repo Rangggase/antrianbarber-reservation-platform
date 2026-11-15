@@ -1,9 +1,9 @@
 import { ArrowDownRight, ArrowUpRight, Star } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
-const heroPhoto = 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=1250&q=85';
+// Foto hero (Unsplash, 1599351431202-1e0f0137899a) disimpan lokal sebagai webp agar tidak bergantung host luar.
 export default function Hero() {
-  const [src, setSrc] = useState(heroPhoto);
+  const [failed, setFailed] = useState(false);
   return <section className="hero-section" id="beranda" aria-labelledby="hero-title">
     <div className="container-shell hero-grid">
       <div className="hero-copy">
@@ -14,7 +14,9 @@ export default function Hero() {
         <div className="hero-caption"><Star size={12} fill="currentColor"/> PROYEK DEMO <span className="hero-separator"/> PENGALAMAN BARBER DIGITAL</div>
       </div>
       <div className="hero-photo-box">
-        <img src={src} alt="Suasana proses merapikan potongan rambut di barbershop" onError={() => setSrc('/images/photo-fallback.svg')}/>
+        {failed
+          ? <img src="/images/photo-fallback.svg" alt="Suasana proses merapikan potongan rambut di barbershop"/>
+          : <img src="/images/hero-900.webp" srcSet="/images/hero-640.webp 640w, /images/hero-900.webp 900w" sizes="(max-width: 760px) 100vw, 50vw" width={900} height={1349} fetchPriority="high" alt="Suasana proses merapikan potongan rambut di barbershop" onError={() => setFailed(true)}/>}
         <div className="hero-photo-overlay"/>
         <div className="photo-footer"><span>01 / KERAJINAN</span><span>TAMPIL LEBIH TAJAM.</span></div>
       </div>

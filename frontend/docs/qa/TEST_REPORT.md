@@ -53,10 +53,12 @@ Pengujian di `http://localhost:4173`, setelah `npm run build` dan `npm run previ
 
 | Halaman | Performance | Accessibility | Best Practices | SEO |
 | --- | ---: | ---: | ---: | ---: |
-| Beranda `/` | **100** | **95** | **100** | **92** |
-| Reservasi `/reservasi` | **99** | **96** | **100** | **91** |
+| Beranda `/` — Desktop | **100** | **100** | **100** | **92** |
+| Beranda `/` — Mobile | **95** | **100** | **100** | **92** |
+| Reservasi `/reservasi` — Desktop | **100** | **100** | **100** | **91** |
+| Reservasi `/reservasi` — Mobile | **97** | **100** | **100** | **91** |
 
-**Batasan laporan:** kedua hasil di atas berasal dari mode perangkat yang berbeda, tetapi hasil per halaman belum diidentifikasi secara pasti sebagai Mobile atau Desktop. Empat kombinasi Beranda/Reservasi × Mobile/Desktop belum seluruhnya dilaporkan sebagai pengujian terpisah. Jangan menyebutnya empat audit.
+**Metode:** pengukuran ulang 15 November 2026 setelah Sprint 5a–5e dan axe; Lighthouse 12.6.1, Chrome sistem headless, 3 kali jalan per kombinasi, nilai median. Beranda diukur ulang setelah foto hero dijadikan webp lokal; sebelumnya Performance Mobile 80 (jalan: 80, 82, 52) dengan LCP sekitar 4,7 detik karena foto dimuat dari host eksternal. Sesudahnya Mobile 95, 95, 94 (LCP 2,5–2,7 detik). Hasil rilis v2.1e (100/95/100/92 dan 99/96/100/91) tidak lagi berlaku; mode perangkatnya tidak pernah dipastikan. Screenshot di bawah adalah satu jalan Mobile dari laporan Lighthouse (Beranda 95, Reservasi 95), jadi bisa sedikit berbeda dari median pada tabel.
 
 Screenshot bukti:
 
@@ -73,7 +75,7 @@ Screenshot bukti:
 
 ## 5. Tahap QA selanjutnya
 
-- Lengkapi hasil Lighthouse Mobile dan Desktop untuk kedua halaman secara terpisah.
+- Ukur Lighthouse pada deployment publik setelah ada hosting.
 - Tambahkan pengujian lintas browser (Firefox/WebKit) dan perangkat nyata.
 - Evaluasi aksesibilitas keyboard dan screen reader secara manual.
 - Jalankan kembali seluruh tes setelah integrasi backend API.

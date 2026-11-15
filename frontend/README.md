@@ -98,10 +98,12 @@ The Playwright configuration starts its own local test server. Do not upload cus
 | --- | --- | --- |
 | Manual user acceptance tests | **10/10 passed** | Developer-performed scenarios, not external-user UAT |
 | Playwright E2E | **63/63 passed** | Local Chromium, 15 November 2026: demo 29, availability 2, bookings 3, production API 3, staff 14, UI kit 12 |
-| Lighthouse — Home | **100 / 95 / 100 / 92** | Performance / Accessibility / Best Practices / SEO. From v2.1e; not re-measured after Sprint 5 |
-| Lighthouse — Booking | **99 / 96 / 100 / 91** | Performance / Accessibility / Best Practices / SEO. From v2.1e; not re-measured after Sprint 5 |
+| Lighthouse — Home, Desktop | **100 / 100 / 100 / 92** | Performance / Accessibility / Best Practices / SEO. Median of 3 runs, Lighthouse 12.6.1, production preview, 15 November 2026 (after Sprint 5 and the local hero image) |
+| Lighthouse — Home, Mobile | **95 / 100 / 100 / 92** | Same setup. Was 80 (LCP ≈ 4.7 s) while the hero photo loaded from an external host; now LCP ≈ 2.6 s with a local webp |
+| Lighthouse — Booking, Desktop | **100 / 100 / 100 / 91** | Same setup |
+| Lighthouse — Booking, Mobile | **97 / 100 / 100 / 91** | Same setup |
 
-The two reported Lighthouse audits used different device modes, but the per-page Mobile/Desktop mapping has not been confirmed. Scores are lab estimates and can change between runs. See the [quality-assurance evidence](docs/qa/TEST_REPORT.md) for scope and limitations.
+These replace the v2.1e figures (Home 100 / 95 / 100 / 92, Booking 99 / 96 / 100 / 91), whose device modes were never confirmed. Scores are lab estimates measured on a developer machine and can change between runs. See the [quality-assurance evidence](docs/qa/TEST_REPORT.md) for scope and limitations.
 
 ## Architecture and project notes
 

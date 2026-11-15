@@ -127,4 +127,4 @@ Tes Playwright memakai mock API yang menulis header CORS sendiri, jadi kecocokan
 - Token staf disimpan di `sessionStorage` (rentan terhadap XSS bila ada celah injeksi).
 - Nomor HP disimpan apa adanya; belum ada penghapusan otomatis. Gunakan data fiktif.
 - Belum ada notifikasi, pembayaran, atau deployment publik; CI belum pernah dijalankan di GitHub.
-- Skor Lighthouse dan hasil UAT berasal dari rilis frontend v2.1e.
+- Skor Lighthouse diukur ulang pada 15 November 2026 (setelah Sprint 5); hasil UAT masih berasal dari rilis frontend v2.1e.
