@@ -2,7 +2,7 @@
 
 ## Scope
 
-Saat ini repositori berisi aplikasi frontend React. Belum ada layanan API, autentikasi, maupun PostgreSQL yang terhubung. Istilah "reservation" pada UI adalah simulasi lokal.
+Dokumen ini menjelaskan frontend React. Backend FastAPI + PostgreSQL ada di `../backend` dan terhubung lewat **mode API** (hanya saat `npm run dev` dengan `VITE_*_SOURCE=api`). Pada build produksi dan mode demo, "reservation" adalah simulasi lokal. Belum ada autentikasi admin.
 
 ```mermaid
 flowchart TD
@@ -50,10 +50,10 @@ public/                     # static assets / fallback images
 - Slot yang ditampilkan adalah preferensi demo, bukan inventaris slot terpusat.
 - Nomor tiket dan pengecekan duplikasi hanya berlaku dalam ruang lingkup penyimpanan browser tersebut.
 - `localStorage` bukan penyimpanan aman untuk informasi pribadi. Selama fase demo, gunakan data sintetis.
-- Tidak ada backend, database terpusat, autentikasi admin, atau notifikasi yang aktif.
+- Pada mode demo tidak ada database terpusat. Autentikasi admin dan notifikasi belum tersedia di kedua mode.
 - Beberapa foto menggunakan sumber gambar eksternal; tampilan dapat berubah saat koneksi offline.
 
-### Rencana integrasi berikutnya (belum diimplementasikan)
+### Integrasi frontend-backend (mode API sudah ada; admin belum)
 
 ```mermaid
 flowchart TD
@@ -63,4 +63,4 @@ flowchart TD
     ADMIN[Admin dashboard] -->|HTTPS REST API| API
 ```
 
-Rancangan relasi tabel, migrasi Alembic, aturan konflik booking, dan otorisasi admin akan diputuskan pada tahap backend terpisah. Diagram kedua adalah **target arsitektur**, bukan implementasi saat ini.
+Alur `React UI → FastAPI → PostgreSQL` sudah diimplementasikan (migrasi Alembic, aturan konflik booking lewat exclusion constraint, token akses HMAC, rate limit). Bagian `Admin dashboard` dan `Auth` pada diagram masih **target arsitektur**, belum diimplementasikan.

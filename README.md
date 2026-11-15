@@ -2,6 +2,8 @@
 
 Aplikasi reservasi antrian barbershop, dibangun sebagai project portofolio.
 
+**Status:** demo fullstack dalam pengembangan. Frontend dapat berjalan mandiri (mode demo, `localStorage`) atau terhubung ke backend FastAPI + PostgreSQL (mode API, saat `npm run dev`). Belum ada dashboard admin dan belum ada deployment publik. Lihat [roadmap](frontend/docs/ROADMAP.md).
+
 ## Struktur
 
 ```
@@ -24,6 +26,7 @@ npm run dev
 cd backend
 python -m venv .venv
 .venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
+python -m pytest -q
 ```
-Salin `backend/.env.example` menjadi `backend/.env` lalu isi nilainya sebelum menjalankan server.
+Salin `backend/.env.example` menjadi `backend/.env`, isi `DB_PASSWORD` dan `BOOKING_TOKEN_SECRET`. Langkah migrasi, seed, dan menjalankan server ada di [backend/README_SETUP.md](backend/README_SETUP.md).

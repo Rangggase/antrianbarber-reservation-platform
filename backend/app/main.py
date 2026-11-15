@@ -1,4 +1,4 @@
-"""FastAPI v2.2c: public demo catalog, availability and reservation API."""
+"""FastAPI v2.4: demo catalog, availability and reservation API with token auth and rate limiting."""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .security.rate_limit import RateLimitMiddleware
@@ -7,8 +7,8 @@ from .api.reservations import router as reservation_router
 
 app = FastAPI(
     title="Antrian Barber API",
-    version="2.2c",
-    description="REST API demo berbasis PostgreSQL, belum terintegrasi dengan frontend publik dan belum production-ready.",
+    version="2.4",
+    description="REST API demo reservasi barbershop berbasis PostgreSQL. Terhubung ke frontend lewat mode API (dev); belum production-ready dan belum memiliki autentikasi admin.",
 )
 # Intentionally local-only until production origins and authentication are planned.
 

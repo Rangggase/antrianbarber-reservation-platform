@@ -3,6 +3,8 @@ import { defineConfig, devices } from '@playwright/test';
 /** Baseline 19 regression tests remain offline demo-mode, deterministic. */
 export default defineConfig({
   testDir: './e2e',
+  // API-mocked specs run through their own configs (see npm scripts).
+  testIgnore: ['availability.spec.ts', 'bookings.spec.ts'],
   timeout: 30_000,
   expect: { timeout: 10_000 },
   fullyParallel: true,

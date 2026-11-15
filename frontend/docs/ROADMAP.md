@@ -6,15 +6,18 @@
 | v2.1 | Migrasi React + TypeScript, halaman terpisah | Selesai |
 | v2.1d | UX reservasi empat langkah, profil barber, galeri | Selesai |
 | v2.1e | UAT, Playwright Chromium, Lighthouse baseline | Lulus menurut laporan lokal; audit mode tambahan menyusul |
-| v2.2 | FastAPI, PostgreSQL, migrasi skema | Direncanakan |
-| v2.3 | API reservasi dan sinkronisasi frontend/backend | Direncanakan |
-| v2.4 | Dashboard admin, sidebar, login dan manajemen antrean | Direncanakan |
-| v2.5 | Analytics, CI/CD, deployment dan laporan portofolio final | Direncanakan |
+| v2.2 | FastAPI, PostgreSQL, migrasi skema | Selesai |
+| v2.3 | API reservasi dan sinkronisasi frontend/backend (mode API di dev) | Selesai |
+| v2.4 | Keamanan dasar: token akses, rate limit, CORS | Selesai |
+| v2.5 | Sprint 0: fondasi (env, CI, dokumentasi sinkron) | Berjalan |
+| v2.6 | API di build produksi, tes PostgreSQL asli, refactor backend | Direncanakan |
+| v2.7 | Login admin/barber, status antrean, dashboard | Direncanakan |
+| v2.8 | Laporan, manajemen jadwal, deployment dan studi kasus final | Direncanakan |
 
 ## Prinsip pengerjaan
 
 1. Backend dikembangkan pada branch/versi tersendiri setelah frontend baseline disimpan.
 2. UI yang sudah ada tidak mengklaim ketersediaan barber nyata sampai backend memiliki validasi jadwal dan kapasitas.
-3. Nomor HP dan informasi pelanggan tidak disimpan di demo publik sebelum rancangan privasi dan keamanan tersedia.
+3. Backend menyimpan nama dan nomor HP pelanggan (data fiktif pada demo). Kebijakan privasi final ditetapkan sebelum deployment publik.
 4. Setiap fitur baru disertai tes dan dokumentasi keputusan teknis.
-5. Repo saat ini adalah frontend-only. Struktur monorepo (frontend/ dan backend/) dipertimbangkan ketika integrasi benar-benar dimulai.
+5. Repo berstruktur monorepo: `frontend/` dan `backend/`.

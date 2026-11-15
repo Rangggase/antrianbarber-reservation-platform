@@ -6,7 +6,7 @@
 
 Antrian Barber transforms an early web-programming project into a responsive, multi-page reservation demo. Visitors can explore grooming services, view barber profiles, browse hairstyle inspiration, and complete a four-step booking flow.
 
-> **Project status — Frontend demo (v2.1e).** Reservations are saved only in the current browser using `localStorage`. There is no shared queue, real-time availability, payment processing, or active barbershop service. All staff profiles, prices, schedules, and tickets are illustrative. Please use fictional customer information.
+> **Project status — Fullstack demo (v2.4, in development).** The UI works in two modes. In **demo mode** (default, and the only mode in production builds) reservations are saved only in the current browser using `localStorage`. In **API mode** (`npm run dev` with `VITE_*_SOURCE=api`, see `.env.example`) the UI uses the FastAPI backend in `../backend` for catalog, availability and bookings. There is no admin dashboard, payment processing, or active barbershop service. All staff profiles, prices, schedules, and tickets are illustrative. Please use fictional customer information.
 
 ![Antrian Barber homepage preview](docs/assets/home-preview.webp)
 
@@ -45,12 +45,17 @@ Antrian Barber transforms an early web-programming project into a responsive, mu
 ```bash
 # Clone and install
 git clone https://github.com/Rangggase/antrianbarber-reservation-platform.git
-cd antrianbarber-reservation-platform
+cd antrianbarber-reservation-platform/frontend
 npm ci
+
+# Optional: choose demo or API mode
+cp .env.example .env.development.local
 
 # Development server
 npm run dev
 ```
+
+For API mode, start the backend first (see [backend/README_SETUP.md](../backend/README_SETUP.md)).
 
 Open the local address shown in the terminal (normally `http://localhost:5173/`).
 
@@ -108,7 +113,7 @@ The two reported Lighthouse audits used different device modes, but the per-page
 
 ## What's next
 
-The next phase replaces browser-only ticket storage with a backend using FastAPI, PostgreSQL, SQLAlchemy and Alembic, followed by a protected admin dashboard. **These capabilities are planned, not yet implemented in this frontend release.**
+The backend (FastAPI, PostgreSQL, SQLAlchemy, Alembic) and API-mode integration exist. Planned next: using the API in production builds, a protected admin/barber dashboard with queue status management, and reporting. See the [roadmap](docs/ROADMAP.md).
 
 ## Project background
 

@@ -1,68 +1,67 @@
-# Antrian Barber — Backend Starter v2.2a
+# Antrian Barber — Backend (FastAPI + PostgreSQL)
 
-Starter ini **tidak mengganti** file frontend dan **belum** menyimpan reservasi ke PostgreSQL. Fungsinya baru membuktikan server FastAPI dan koneksi database berjalan.
+REST API demo untuk katalog layanan, ketersediaan slot, dan reservasi. Belum production-ready dan belum memiliki login admin.
 
-## 1. Ekstrak
-Salin folder `backend` dari ZIP ke `D:\new another projectA\` sehingga sejajar dengan `frontend`.
+## Prasyarat
+- Python 3.11+ (diuji di 3.12/3.13)
+- PostgreSQL lokal (via pgAdmin 4 atau CLI)
 
-## 2. Buat database via pgAdmin 4
-- Hubungkan pgAdmin ke server PostgreSQL lokal.
-- Klik kanan **Databases > Create > Database**.
-- Database name: `antrian_barber_db` (jangan pakai database proyek lain).
-- Owner: gunakan role yang kamu miliki, misalnya `postgres`.
-- Simpan. Tidak perlu membuat tabel manual sekarang.
+## 1. Buat database
+Di pgAdmin 4: **Databases > Create > Database**, nama `antrian_barber_db`. Tabel dibuat lewat migrasi, bukan manual.
 
-## 3. PyCharm terminal PowerShell
+Migrasi memakai ekstensi `btree_gist` (untuk mencegah dua booking bertabrakan pada satu barber), sehingga role database harus boleh menjalankan `CREATE EXTENSION`.
+
+## 2. Siapkan lingkungan
 ```powershell
-cd "D:\new another projectA\backend"
+cd backend
 py -3 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 Copy-Item .env.example .env
 ```
+Edit `.env`: isi `DB_PASSWORD` dan **`BOOKING_TOKEN_SECRET`** (minimal 32 karakter; tanpa ini booking mengembalikan 503). Jangan commit `.env`.
 
-Buka file `.env` di PyCharm dan ganti `DB_PASSWORD` dengan password role PostgreSQL lokal yang kamu gunakan. Kalau role berbeda dari `postgres`, ubah `DB_USER` juga. Jangan kirim atau screenshot nilai password dan jangan commit `.env`.
+## 3. Migrasi dan data demo
+```powershell
+.\.venv\Scripts\python.exe -m alembic upgrade head
+.\.venv\Scripts\python.exe -m scripts.seed_demo
+.\.venv\Scripts\python.exe -m scripts.seed_schedules_demo
+```
+Skrip seed idempoten dan hanya berisi data fiktif.
 
-Kalau `py -3` tidak dikenali, coba `python -m venv .venv`. Disarankan Python 3.11 atau lebih baru.
-
-## 4. Cek pengujian lokal
+## 4. Jalankan tes
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
 ```
-Target: 2 tests passed. Tes ini memakai SQLite in-memory untuk *menguji endpoint*, bukan membuktikan koneksi PostgreSQL.
+Tes memakai SQLite in-memory, jadi **tidak menguji** constraint khusus PostgreSQL (exclusion constraint).
 
-## 5. Jalankan backend
+## 5. Jalankan server
 ```powershell
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000
 ```
+- Swagger UI: http://127.0.0.1:8000/docs
+- Health: http://127.0.0.1:8000/api/health dan `/api/health/db`
 
-Buka:
-- http://127.0.0.1:8000/docs (Swagger UI)
-- http://127.0.0.1:8000/api/health (server hidup)
-- http://127.0.0.1:8000/api/health/db (koneksi PostgreSQL)
+## Endpoint utama (`/api/v1`)
+| Method | Path | Fungsi |
+| --- | --- | --- |
+| GET | `/services`, `/barbers` | Katalog aktif |
+| GET | `/availability?barber_id&service_id&date` | Slot kosong |
+| POST | `/bookings` | Buat reservasi, mengembalikan `access_token` |
+| GET | `/bookings/{reference_code}` | Lihat reservasi (header `X-Booking-Token`) |
+| POST | `/bookings/{reference_code}/cancel` | Batalkan reservasi (header `X-Booking-Token`) |
 
-Target endpoint `/api/health/db`:
-```json
-{"status":"ok","database":"connected"}
-```
+Migrasi: lihat juga [README_MIGRATION_v2_2b.md](README_MIGRATION_v2_2b.md).
 
-Jika mendapat 503, periksa server PostgreSQL berjalan, nama database, role, port, dan nilai `.env`. Jangan mengirim password ke chat.
-
-## 6. Fitur yang BELUM ada
-Belum ada tabel, migrasi Alembic, API layanan/barber, otentikasi admin, atau penyimpanan booking. Itu tahap v2.2b—v2.3 setelah koneksi berhasil.
-
-## Struktur proyek
+## Struktur
 ```text
-new another projectA/
-├── AntrianBarber_Professional/  # v2.0, tetap aman
-├── frontend/                   # React v2.1c, tetap aman
-└── backend/                    # FastAPI v2.2a
-    ├── app/
-    │   ├── api/health.py
-    │   ├── config.py
-    │   ├── database.py
-    │   └── main.py
-    ├── tests/test_health.py
-    ├── .env.example
-    ├── .gitignore
-    └── requirements.txt
+backend/
+├── app/
+│   ├── api/            # health.py, reservations.py
+│   ├── security/       # rate_limit.py
+│   ├── config.py  database.py  models.py  main.py
+├── alembic/            # migrasi skema
+├── scripts/            # seed data demo
+├── tests/
+├── requirements.txt        # dependensi runtime
+└── requirements-dev.txt    # + pytest, httpx
 ```
