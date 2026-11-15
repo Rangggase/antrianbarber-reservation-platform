@@ -43,11 +43,12 @@ async function mockApi(page:Page, failCreate=false){
   return { stats:()=>({created,cancelled,getAuthorized}) };
 }
 
+/** Three steps: service and barber, time, then details. The last button creates the karcis. */
 async function fillWizard(page:Page){
   await page.goto('/reservasi');
   await page.getByRole('group',{name:'Pilih layanan'}).getByRole('button',{name:/Classic Haircut/}).click();
-  await page.getByRole('button',{name:'Lanjutkan'}).click();
   await page.getByRole('group',{name:'Pilih barber'}).getByRole('button',{name:/Raka Pratama/}).click();
+  await page.getByRole('button',{name:'Lanjutkan'}).click();
   await page.locator('#wizard-date').fill(tomorrow());
   const slot=page.getByRole('group',{name:'Jam preferensi'}).getByRole('button',{name:'10:00'});
   await expect(slot).toBeVisible();await slot.click();
@@ -55,14 +56,13 @@ async function fillWizard(page:Page){
   await page.locator('#wizard-name').fill('Pelanggan Demo');
   await page.locator('#wizard-phone').fill('081299991234');
   await page.locator('input[type=checkbox]').check();
-  await page.getByRole('button',{name:'Lanjutkan'}).click();
 }
 
-test('POST 201 menampilkan tiket, GET menggunakan token, dan pembatalan POST mengubah status', async ({page})=>{
+test('POST 201 menampilkan karcis, GET menggunakan token, dan pembatalan POST mengubah status', async ({page})=>{
   const api=await mockApi(page);
   await fillWizard(page);
-  await page.getByRole('button',{name:'Buat Tiket'}).click();
-  await expect(page.getByRole('dialog',{name:'Tiket tersimpan.'})).toBeVisible();
+  await page.getByRole('button',{name:'Ambil karcis'}).click();
+  await expect(page.getByRole('dialog',{name:'Karcis tersimpan.'})).toBeVisible();
   await expect(page.getByRole('dialog')).toContainText(code);
   await page.getByRole('button',{name:'Tutup tiket'}).click();
   await expect(page.getByText(code)).toBeVisible();
@@ -75,12 +75,12 @@ test('POST 201 menampilkan tiket, GET menggunakan token, dan pembatalan POST men
   expect(api.stats()).toEqual({created:1,cancelled:1,getAuthorized:1});
 });
 
-test('HTTP 409 tidak menghasilkan tiket palsu dan meminta memilih ulang slot',async({page})=>{
+test('HTTP 409 tidak menghasilkan karcis palsu dan meminta memilih ulang slot',async({page})=>{
   const api=await mockApi(page,true);
   await fillWizard(page);
-  await page.getByRole('button',{name:'Buat Tiket'}).click();
+  await page.getByRole('button',{name:'Ambil karcis'}).click();
   await expect(page.getByRole('alert').filter({hasText:'Reservasi tidak bisa dibuat'})).toBeVisible();
-  await expect(page.getByRole('heading',{name:'Pilih barber & jadwal.'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Pilih waktu.'})).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(api.stats().created).toBe(1);
 });
@@ -88,10 +88,10 @@ test('HTTP 409 tidak menghasilkan tiket palsu dan meminta memilih ulang slot',as
 test('menghapus catatan sesi tidak memanggil cancel API',async({page})=>{
   const api=await mockApi(page);
   await fillWizard(page);
-  await page.getByRole('button',{name:'Buat Tiket'}).click();
+  await page.getByRole('button',{name:'Ambil karcis'}).click();
   await page.getByRole('button',{name:'Tutup tiket'}).click();
   page.once('dialog',dlg=>dlg.accept());
   await page.getByRole('button',{name:'Lupakan lokal'}).click();
-  await expect(page.getByText('Belum ada tiket dalam sesi ini.')).toBeVisible();
+  await expect(page.getByText('Belum ada reservasi.', { exact: true })).toBeVisible();
   expect(api.stats().cancelled).toBe(0);
 });

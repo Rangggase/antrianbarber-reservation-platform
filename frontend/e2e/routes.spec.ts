@@ -58,7 +58,6 @@ test.describe('Katalog dan halaman profil', () => {
     await page.getByRole('link', { name: /Pilih barber ini/ }).first().click();
     await expect(page).toHaveURL(/\/reservasi\?barber=raka$/);
     await page.getByRole('group', { name: 'Pilih layanan' }).getByRole('button', { name: /Classic Haircut/ }).click();
-    await page.getByRole('button', { name: 'Lanjutkan' }).click();
     await expect(page.getByRole('group', { name: 'Pilih barber' })
       .getByRole('button', { name: /Raka Pratama/ })).toHaveAttribute('aria-pressed', 'true');
   });

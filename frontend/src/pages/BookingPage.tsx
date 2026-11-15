@@ -12,8 +12,5 @@ export default function BookingPage() {
     service: findService(service) ? service as ServiceId : undefined,
     barber: findBarber(barber) ? barber as BarberId : undefined,
   }), [service, barber]);
-  return <>
-    <h1 className="sr-only">Reservasi antrean</h1>
-    <Booking preselect={selected} />
-  </>;
+  return <Booking preselect={selected} />;
 }

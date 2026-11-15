@@ -34,13 +34,16 @@ test('memuat slot API WIB sesuai barber dan layanan; pergantian barber membersih
   await mockApi(page);
   await page.goto('/reservasi');
   await page.getByRole('group', { name:'Pilih layanan' }).getByRole('button', { name:/Classic Haircut/ }).click();
-  await page.getByRole('button', { name:'Lanjutkan' }).click();
   await page.getByRole('group', { name:'Pilih barber' }).getByRole('button', { name:/Raka Pratama/ }).click();
+  await page.getByRole('button', { name:'Lanjutkan' }).click();
   await page.locator('#wizard-date').fill(tomorrow());
   const slots = page.getByRole('group', { name:'Jam preferensi' });
   await expect(slots.getByRole('button',{ name:'10:00' })).toBeVisible();
   await slots.getByRole('button', { name:'10:00' }).click();
+  // Changing the barber happens on step 1, so go back first.
+  await page.getByRole('button', { name:'Kembali' }).click();
   await page.getByRole('group', { name:'Pilih barber' }).getByRole('button', { name:/Naufal Ardi/ }).click();
+  await page.getByRole('button', { name:'Lanjutkan' }).click();
   await expect(page.getByText('Tidak ada jam tersedia untuk pilihan ini.')).toBeVisible();
   await page.getByRole('button', { name:'Lanjutkan' }).click();
   await expect(page.getByRole('alert').filter({ hasText: 'Pilih salah satu jam yang tersedia.' })).toBeVisible();
@@ -51,11 +54,11 @@ test('saat API availability gagal, slot tidak diambil dari data statis', async (
   await page.route('http://127.0.0.1:8000/api/v1/availability?**', route => route.fulfill({ status:503, json:{ detail:'Unavailable' }, headers: { 'access-control-allow-origin':'*' } }));
   await page.goto('/reservasi');
   await page.getByRole('group', { name:'Pilih layanan' }).getByRole('button', { name:/Classic Haircut/ }).click();
-  await page.getByRole('button', { name:'Lanjutkan' }).click();
   await page.getByRole('group', { name:'Pilih barber' }).getByRole('button', { name:/Raka Pratama/ }).click();
+  await page.getByRole('button', { name:'Lanjutkan' }).click();
   await page.locator('#wizard-date').fill(tomorrow());
   await expect(page.getByRole('alert').filter({ hasText:'Jam belum bisa dimuat' })).toBeVisible();
   await expect(page.getByRole('group', { name:'Jam preferensi' })).toHaveCount(0);
   await page.getByRole('button', { name:'Lanjutkan' }).click();
-  await expect(page.getByRole('heading', { name:'Pilih barber & jadwal.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name:'Pilih waktu.' })).toBeVisible();
 });
