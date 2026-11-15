@@ -20,7 +20,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..errors import AppError
-from ..models import Barber, Booking, Customer, Schedule, Service
+from ..models import Barber, BarberTimeOff, Booking, Customer, Schedule, Service
 from ..schemas import BookingCreate, BookingDetail
 
 logger = logging.getLogger("antrian_barber.booking")
@@ -83,6 +83,10 @@ def available_starts(session: Session, barber_id: int, service: Service, day: da
     )).all()
     if not schedules:
         return []
+    if session.scalar(select(BarberTimeOff.id).where(
+        BarberTimeOff.barber_id == barber_id, BarberTimeOff.starts_on <= day, BarberTimeOff.ends_on >= day,
+    ).limit(1)) is not None:
+        return []  # barber is on leave that day
     earliest = datetime.now(LOCAL_ZONE) + timedelta(minutes=BOOKING_LEAD_MINUTES)
     day_begin_utc = datetime.combine(day, datetime.min.time(), LOCAL_ZONE).astimezone(timezone.utc)
     day_end_utc = day_begin_utc + timedelta(days=1)

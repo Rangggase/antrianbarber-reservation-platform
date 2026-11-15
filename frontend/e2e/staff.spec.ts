@@ -28,7 +28,10 @@ type Opts = { queueStatus?: number };
 
 async function mockStaffApi(page: Page, opts: Opts = {}) {
   const rows = seed();
-  const calls = { logins: 0, statusChanges: [] as string[], queueRequests: [] as string[] };
+  const calls = { logins: 0, statusChanges: [] as string[], queueRequests: [] as string[], reportRequests: [] as string[], scheduleCalls: [] as string[], scheduleBodies: [] as unknown[], timeOffBodies: [] as unknown[] };
+  let intervals = [{ weekday: 0, start_time: '09:00:00', end_time: '17:00:00' }];
+  let timeOff: { id: number; starts_on: string; ends_on: string; reason: string | null }[] = [];
+  let nextTimeOffId = 1;
   let nextQueue = 1;
   await page.route(`${API}/**`, (route) => {
     const request = route.request();
@@ -46,6 +49,40 @@ async function mockStaffApi(page: Page, opts: Opts = {}) {
     }
     if (!path.startsWith('/staff/')) return reply(404, { detail: 'Not Found', code: 'not_found' });
     if (request.headers()['authorization'] !== `Bearer ${TOKEN}`) return reply(401, { detail: 'Login diperlukan.', code: 'unauthorized' });
+    const scheduleView = () => ({ barber_id: 1, barber_name: 'Raka Pratama', intervals, time_off: timeOff });
+    if (path === '/staff/barbers/1/schedule') {
+      calls.scheduleCalls.push(request.method());
+      if (request.method() === 'PUT') {
+        const body = request.postDataJSON() as { intervals: { weekday: number; start_time: string; end_time: string }[] };
+        calls.scheduleBodies.push(body);
+        intervals = body.intervals.map((i) => ({ ...i, start_time: `${i.start_time}:00`, end_time: `${i.end_time}:00` }));
+      }
+      return reply(200, scheduleView());
+    }
+    if (path === '/staff/barbers/1/time-off' && request.method() === 'POST') {
+      const body = request.postDataJSON() as { starts_on: string; ends_on: string; reason: string | null };
+      calls.timeOffBodies.push(body);
+      if (body.starts_on === '2099-12-24') return reply(409, { detail: 'Masih ada 2 reservasi aktif pada rentang itu. Batalkan atau selesaikan dulu.', code: 'time_off_conflict' });
+      const created = { id: nextTimeOffId++, starts_on: body.starts_on, ends_on: body.ends_on, reason: body.reason };
+      timeOff = [...timeOff, created];
+      return reply(201, created);
+    }
+    const removal = path.match(/^\/staff\/time-off\/(\d+)$/);
+    if (removal && request.method() === 'DELETE') {
+      timeOff = timeOff.filter((t) => t.id !== Number(removal[1]));
+      return route.fulfill({ status: 204, headers: cors });
+    }
+    if (path === '/staff/reports') {
+      calls.reportRequests.push(url.search);
+      const peak = Array(24).fill(0); peak[9] = 4; peak[14] = 2;
+      return reply(200, {
+        start: url.searchParams.get('start'), end: url.searchParams.get('end'),
+        counts: { pending: 1, confirmed: 0, in_service: 0, completed: 5, cancelled: 1, no_show: 1 }, completed: 5, revenue_idr: 375000, no_show_rate: 0.1667,
+        by_service: [{ id: 1, name: 'Classic Haircut', total: 7, completed: 5, no_show: 1, revenue_idr: 375000 }],
+        by_barber: [{ id: 1, name: 'Raka Pratama', total: 4, completed: 3, no_show: 0, revenue_idr: 225000 }, { id: 2, name: 'Dimas Putra', total: 3, completed: 2, no_show: 1, revenue_idr: 150000 }],
+        peak_hours: peak,
+      });
+    }
     if (path === '/staff/queue') {
       calls.queueRequests.push(url.search);
       if (opts.queueStatus) return reply(opts.queueStatus, { detail: 'Sesi tidak valid atau sudah berakhir. Silakan login ulang.', code: 'unauthorized' });
@@ -178,4 +215,88 @@ test('customer sees queue number and estimated wait after checking status', asyn
   await page.getByRole('button', { name: 'Periksa status' }).click();
   await expect(page.getByText('Nomor antrean #4')).toBeVisible();
   await expect(page.getByText('2 antrean di depan · estimasi tunggu ±90 menit')).toBeVisible();
+});
+
+test('admin opens the report page and sees totals, per-barber rows and busy hours', async ({ page }) => {
+  const calls = await mockStaffApi(page);
+  await signIn(page);
+  await page.getByRole('link', { name: 'Laporan' }).click();
+  await expect(page.getByRole('heading', { name: 'Laporan' })).toBeVisible();
+  const kpis = page.getByRole('list', { name: 'Ringkasan' });
+  await expect(kpis).toContainText('375.000');
+  await expect(kpis).toContainText('16.7%');
+  await expect(page.getByRole('region', { name: 'Per barber' }).getByRole('row', { name: /Dimas Putra/ })).toContainText('150.000');
+  const peaks = page.getByRole('region', { name: 'Jam tersibuk' });
+  await expect(peaks).toContainText('09:00');
+  await expect(peaks).toContainText('14:00');
+  await expect(peaks).not.toContainText('10:00');
+  // changing the range asks the server again with the new dates
+  await page.getByLabel('Dari').fill('2026-10-01');
+  await expect.poll(() => calls.reportRequests.some((q) => q.includes('start=2026-10-01'))).toBe(true);
+});
+
+test('a barber has no report link and the page does not call the API', async ({ page }) => {
+  const calls = await mockStaffApi(page);
+  await signIn(page, 'raka');
+  await expect(page.getByRole('heading', { name: 'Antrean harian' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Laporan' })).toHaveCount(0);
+  await page.goto('/staff/reports');
+  await expect(page.getByRole('alert')).toContainText('hanya untuk admin');
+  expect(calls.reportRequests).toEqual([]);
+});
+
+test('admin edits the weekly schedule and the save sends the whole new grid', async ({ page }) => {
+  const calls = await mockStaffApi(page);
+  await signIn(page);
+  await page.getByRole('link', { name: 'Jadwal' }).click();
+  await expect(page.getByRole('heading', { name: 'Jadwal dan cuti' })).toBeVisible();
+  await expect(page.getByLabel('Barber')).toHaveValue('1');
+  await expect(page.getByLabel('Senin mulai')).toHaveValue('09:00');
+  await expect(page.getByLabel('Selasa mulai')).toHaveCount(0);   // no hours on Tuesday yet: shown as "Libur"
+
+  await page.getByLabel('Senin selesai').fill('15:00');
+  await page.getByRole('button', { name: 'Tambah jam Selasa' }).click();
+  await page.getByLabel('Selasa mulai').fill('10:00');
+  await page.getByRole('button', { name: 'Simpan jadwal' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'Jadwal Raka Pratama disimpan' })).toBeVisible();
+  expect(calls.scheduleBodies).toEqual([{ intervals: [
+    { weekday: 0, start_time: '09:00', end_time: '15:00' },
+    { weekday: 1, start_time: '10:00', end_time: '17:00' },
+  ] }]);
+  await expect(page.getByLabel('Selasa mulai')).toHaveValue('10:00');   // reloaded from the server's answer
+});
+
+test('admin adds, is refused for, and removes time off', async ({ page }) => {
+  const calls = await mockStaffApi(page);
+  await signIn(page);
+  await page.getByRole('link', { name: 'Jadwal' }).click();
+  await expect(page.getByText('Tidak ada cuti terjadwal.')).toBeVisible();
+
+  await page.getByLabel('Mulai', { exact: true }).fill('2099-11-20');
+  await page.getByLabel('Sampai', { exact: true }).fill('2099-11-21');
+  await page.getByLabel('Alasan (opsional)').fill('Libur keluarga');
+  await page.getByRole('button', { name: 'Tambah cuti' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'Cuti ditambahkan' })).toBeVisible();
+  await expect(page.getByText('2099-11-20 → 2099-11-21')).toBeVisible();
+  await expect(page.getByText('Libur keluarga')).toBeVisible();
+  expect(calls.timeOffBodies[0]).toEqual({ starts_on: '2099-11-20', ends_on: '2099-11-21', reason: 'Libur keluarga' });
+
+  await page.getByLabel('Mulai', { exact: true }).fill('2099-12-24');
+  await page.getByLabel('Sampai', { exact: true }).fill('2099-12-24');
+  await page.getByRole('button', { name: 'Tambah cuti' }).click();
+  await expect(page.getByRole('alert')).toContainText('Masih ada 2 reservasi aktif');
+  await expect(page.getByText('2099-12-24')).toHaveCount(0);       // the refused leave was not listed
+
+  page.once('dialog', (dlg) => dlg.accept());
+  await page.getByRole('button', { name: 'Hapus cuti 2099-11-20' }).click();
+  await expect(page.getByText('Tidak ada cuti terjadwal.')).toBeVisible();
+});
+
+test('a barber has no schedule link and the page makes no schedule request', async ({ page }) => {
+  const calls = await mockStaffApi(page);
+  await signIn(page, 'raka');
+  await expect(page.getByRole('link', { name: 'Jadwal' })).toHaveCount(0);
+  await page.goto('/staff/schedule');
+  await expect(page.getByRole('alert')).toContainText('hanya untuk admin');
+  expect(calls.scheduleCalls).toEqual([]);
 });

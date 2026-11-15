@@ -13,6 +13,8 @@ import NotFoundPage from './pages/NotFoundPage';
 import StaffLayout from './components/StaffLayout';
 import StaffLoginPage from './pages/StaffLoginPage';
 import StaffDashboardPage from './pages/StaffDashboardPage';
+import StaffReportsPage from './pages/StaffReportsPage';
+import StaffSchedulePage from './pages/StaffSchedulePage';
 import './styles/routes.css';
 import './styles/premium-v21d.css';
 import './styles/qa-mobile-fix.css';
@@ -31,6 +33,8 @@ export default function App() {
     <Route path="staff" element={<StaffLayout />}>
       <Route index element={<StaffDashboardPage />} />
       <Route path="login" element={<StaffLoginPage />} />
+      <Route path="reports" element={<StaffReportsPage />} />
+      <Route path="schedule" element={<StaffSchedulePage />} />
     </Route>
     <Route element={<CustomerLayout />}>
     <Route index element={<HomePage />} />

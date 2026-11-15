@@ -31,7 +31,7 @@ pytestmark = pytest.mark.skipif(TEST_URL is None, reason="TEST_DB_NAME / TEST_DA
 
 JKT = ZoneInfo("Asia/Jakarta")
 DAY_INDEX = "uq_bookings_customer_local_day_active"
-HEAD = "20261116_03"
+HEAD = "20261117_04"
 QUEUE_INDEX = "uq_bookings_barber_local_day_queue"
 SECRET = "postgres-integration-secret-at-least-32-characters"
 

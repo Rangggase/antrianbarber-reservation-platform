@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Base, Barber, Booking, Customer, Schedule, Service
 
-TABLES = {"customers", "barbers", "services", "schedules", "bookings", "staff_users"}
+TABLES = {"customers", "barbers", "services", "schedules", "bookings", "staff_users", "barber_time_off"}
 
 
 def test_models_and_foreign_keys():
@@ -59,7 +59,7 @@ def test_migration_upgrade_downgrade_sqlite_smoke(tmp_path, monkeypatch):
     engine = create_engine(url)
     assert TABLES.issubset(set(inspect(engine).get_table_names()))
     with engine.connect() as conn:
-        assert conn.exec_driver_sql("SELECT version_num FROM alembic_version").scalar_one() == "20261116_03"
+        assert conn.exec_driver_sql("SELECT version_num FROM alembic_version").scalar_one() == "20261117_04"
     command.downgrade(config, "base")
     assert not TABLES.intersection(set(inspect(engine).get_table_names()))
     engine.dispose()

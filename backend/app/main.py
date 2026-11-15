@@ -28,7 +28,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=get_cors_origins(),
     allow_credentials=False,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["Content-Type", "X-Booking-Token", "Authorization"],
     expose_headers=["X-Request-ID", "Retry-After"],
 )

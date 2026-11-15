@@ -116,7 +116,11 @@ export default function StaffDashboardPage() {
         <h1 id="staff-dash-title">Antrean harian</h1>
         <p className="staff-muted">{session.user.full_name}{queue && !isAdmin && queue.bookings[0] ? ` · ${queue.bookings[0].barber_name}` : ''}</p>
       </div>
-      <button type="button" className="button button-outline-dark" onClick={() => logout()}><LogOut size={16} aria-hidden="true" /> Keluar</button>
+      <div className="staff-head-actions">
+        {isAdmin && <Link className="button button-outline-dark" to="/staff/reports">Laporan</Link>}
+        {isAdmin && <Link className="button button-outline-dark" to="/staff/schedule">Jadwal</Link>}
+        <button type="button" className="button button-outline-dark" onClick={() => logout()}><LogOut size={16} aria-hidden="true" /> Keluar</button>
+      </div>
     </div>
 
     <div className="staff-toolbar">

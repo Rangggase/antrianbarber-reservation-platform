@@ -57,3 +57,30 @@
   .staff-dash-head { flex-direction: column; }
   .staff-toolbar .staff-field { flex: 1 1 100%; }
 }
+
+/* Reports */
+.staff-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; list-style: none; padding: 0; margin: 14px 0 22px; }
+.staff-kpis li { background: #fff; border: 1px solid #e3dfd2; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.staff-kpis span { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #7a8a7f; }
+.staff-kpis strong { font: 600 26px Georgia, serif; }
+.staff-report-block { margin-bottom: 26px; }
+.staff-report-block h2 { font: 600 20px Georgia, serif; margin: 0 0 10px; }
+.staff-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e3dfd2; font-size: 14px; }
+.staff-table th, .staff-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee9db; }
+.staff-table thead th { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #7a8a7f; }
+.staff-peaks { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.staff-peaks li { display: grid; grid-template-columns: 56px 1fr 34px; gap: 10px; align-items: center; font-size: 13px; }
+.staff-bar { background: #ece9de; height: 12px; border-radius: 2px; overflow: hidden; }
+.staff-bar i { display: block; height: 100%; background: #2f7d52; }
+.staff-head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* Schedule and time off */
+.staff-week { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 8px; }
+.staff-week > li { display: grid; grid-template-columns: 90px 1fr; gap: 12px; background: #fff; border: 1px solid #e3dfd2; padding: 10px 14px; align-items: start; }
+.staff-intervals { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.staff-interval { display: flex; gap: 8px; align-items: center; }
+.staff-interval input { border: 1px solid #cfcab9; padding: 8px; font-size: 14px; border-radius: 3px; min-height: 40px; }
+.staff-icon-btn { width: 40px; height: 40px; border: 1px solid #c9857d; background: #fff; color: #8a2a21; border-radius: 3px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.staff-timeoff { list-style: none; padding: 0; margin: 0 0 14px; display: grid; gap: 8px; }
+.staff-timeoff li { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: #fff; border: 1px solid #e3dfd2; padding: 10px 14px; font-size: 14px; }
+@media (max-width: 680px) { .staff-table { font-size: 13px; } .staff-table th, .staff-table td { padding: 8px 6px; } }

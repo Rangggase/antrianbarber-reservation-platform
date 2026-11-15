@@ -389,3 +389,190 @@ def test_cors_preflight_still_rejects_unknown_origins(client):
     })
     assert response.status_code == 400
     assert "access-control-allow-origin" not in response.headers
+
+
+# --- admin reports -------------------------------------------------------------------
+
+def _report(client, headers, **params):
+    return client.get("/api/v1/staff/reports", params=params, headers=headers)
+
+
+def _day_at(offset: int, hour: int, minute: int = 0) -> datetime:
+    return datetime.combine(datetime.now(JKT).date() + timedelta(days=offset), time(hour, minute), JKT)
+
+
+def test_report_totals_revenue_no_show_rate_and_peak_hours(client, engine):
+    # day -1: 3 completed (one at 09:00 twice), 1 no_show, 1 cancelled, 1 pending. price is 75000 each.
+    add_booking(engine, status="completed", start=_day_at(-1, 9), phone="081200000001")
+    add_booking(engine, status="completed", start=_day_at(-1, 9, 30), phone="081200000002")
+    add_booking(engine, status="completed", start=_day_at(-1, 14), barber_id=2, phone="081200000003")
+    add_booking(engine, status="no_show", start=_day_at(-1, 16), barber_id=2, phone="081200000004")
+    add_booking(engine, status="cancelled", start=_day_at(-1, 11), phone="081200000005")
+    add_booking(engine, status="pending", start=_day_at(-1, 17), phone="081200000006")
+    day = (datetime.now(JKT).date() - timedelta(days=1)).isoformat()
+    body = _report(client, auth(client), start=day, end=day).json()
+    assert body["counts"] == {"pending": 1, "confirmed": 0, "in_service": 0, "completed": 3, "cancelled": 1, "no_show": 1}
+    assert body["completed"] == 3 and body["revenue_idr"] == 225000
+    assert body["no_show_rate"] == 0.25                      # 1 / (3 completed + 1 no_show)
+    assert body["peak_hours"][9] == 2 and body["peak_hours"][14] == 1 and body["peak_hours"][17] == 1
+    assert body["peak_hours"][11] == 0 and body["peak_hours"][16] == 0   # cancelled and no_show are not "busy"
+    assert len(body["peak_hours"]) == 24 and sum(body["peak_hours"]) == 4
+
+
+def test_report_breaks_down_by_barber_and_service_sorted_by_revenue(client, engine):
+    add_booking(engine, status="completed", start=_day_at(-1, 9), barber_id=1, phone="081200000001")
+    add_booking(engine, status="completed", start=_day_at(-1, 11), barber_id=2, phone="081200000002")
+    add_booking(engine, status="completed", start=_day_at(-1, 13), barber_id=2, phone="081200000003")
+    add_booking(engine, status="no_show", start=_day_at(-1, 15), barber_id=1, phone="081200000004")
+    day = (datetime.now(JKT).date() - timedelta(days=1)).isoformat()
+    body = _report(client, auth(client), start=day, end=day).json()
+    barbers = body["by_barber"]
+    assert [(r["name"], r["completed"], r["no_show"], r["total"], r["revenue_idr"]) for r in barbers] == [
+        ("Dimas", 2, 0, 2, 150000), ("Raka", 1, 1, 2, 75000)]
+    assert body["by_service"] == [{"id": 1, "name": "Fade", "total": 4, "completed": 3, "no_show": 1, "revenue_idr": 225000}]
+
+
+def test_report_range_uses_jakarta_days_and_excludes_outside_bookings(client, engine):
+    inside = datetime.combine(datetime.now(JKT).date() - timedelta(days=1), time(0, 30), JKT)   # 17:30 UTC two dates ago
+    add_booking(engine, status="completed", start=inside, phone="081200000001")
+    add_booking(engine, status="completed", start=_day_at(-10, 10), phone="081200000002")
+    yesterday = (datetime.now(JKT).date() - timedelta(days=1)).isoformat()
+    day_before = (datetime.now(JKT).date() - timedelta(days=2)).isoformat()
+    headers = auth(client)
+    assert _report(client, headers, start=yesterday, end=yesterday).json()["completed"] == 1
+    assert _report(client, headers, start=day_before, end=day_before).json()["completed"] == 0
+    assert _report(client, headers).json()["completed"] == 2          # default range: the last 30 days
+
+
+def test_empty_report_has_no_rate_and_zeroed_hours(client):
+    body = _report(client, auth(client)).json()
+    assert body["no_show_rate"] is None and body["revenue_idr"] == 0 and body["by_barber"] == []
+    assert body["peak_hours"] == [0] * 24
+
+
+def test_report_is_admin_only(client):
+    assert _report(client, auth(client, "raka")).status_code == 403
+    assert _report(client, {}).status_code == 401
+
+
+@pytest.mark.parametrize("start,end,code", [("2026-02-10", "2026-02-01", "invalid_range"), ("2026-01-01", "2026-06-30", "range_too_large")])
+def test_report_rejects_bad_ranges(client, start, end, code):
+    response = _report(client, auth(client), start=start, end=end)
+    assert response.status_code == 422 and response.json()["code"] == code
+
+
+# --- schedule & time off (admin) -----------------------------------------------------
+
+def _schedule_url(barber_id=1):
+    return f"/api/v1/staff/barbers/{barber_id}/schedule"
+
+
+def _slots(client, day, barber_id=1):
+    return client.get("/api/v1/availability", params={"barber_id": barber_id, "service_id": 1, "date": day.isoformat()}).json()["slots"]
+
+
+def test_admin_reads_the_weekly_schedule(client):
+    body = client.get(_schedule_url(), headers=auth(client)).json()
+    assert body["barber_name"] == "Raka" and body["time_off"] == []
+    assert len(body["intervals"]) == 7 and body["intervals"][0] == {"weekday": 0, "start_time": "09:00:00", "end_time": "17:00:00"}
+
+
+def test_replacing_the_schedule_changes_the_offered_slots(client):
+    day = tomorrow()
+    assert len(_slots(client, day)) > 0
+    new = {"intervals": [{"weekday": day.weekday(), "start_time": "13:00", "end_time": "15:00"}]}
+    response = client.put(_schedule_url(), json=new, headers=auth(client))
+    assert response.status_code == 200 and len(response.json()["intervals"]) == 1
+    assert [s[11:16] for s in _slots(client, day)] == ["13:00", "13:30", "14:00"]   # 60-minute service inside 13:00-15:00
+    assert len(_slots(client, day + timedelta(days=1))) == 0                       # every other weekday is now empty
+    assert client.put(_schedule_url(), json={"intervals": []}, headers=auth(client)).json()["intervals"] == []
+
+
+def test_schedule_replacement_does_not_touch_existing_bookings(client, engine):
+    ref = add_booking(engine)
+    client.put(_schedule_url(), json={"intervals": []}, headers=auth(client))
+    with Session(engine) as s:
+        assert s.scalar(select(Booking.status).where(Booking.reference_code == ref)) == "pending"
+
+
+@pytest.mark.parametrize("intervals", [
+    [{"weekday": 1, "start_time": "15:00", "end_time": "09:00"}],
+    [{"weekday": 1, "start_time": "09:00", "end_time": "09:00"}],
+    [{"weekday": 1, "start_time": "09:00", "end_time": "12:00"}, {"weekday": 1, "start_time": "11:00", "end_time": "14:00"}],
+])
+def test_invalid_schedules_are_rejected_and_keep_the_old_one(client, intervals):
+    response = client.put(_schedule_url(), json={"intervals": intervals}, headers=auth(client))
+    assert response.status_code == 422 and response.json()["code"] == "invalid_schedule"
+    assert len(client.get(_schedule_url(), headers=auth(client)).json()["intervals"]) == 7
+
+
+def test_back_to_back_intervals_and_bad_weekday(client):
+    ok = [{"weekday": 2, "start_time": "09:00", "end_time": "12:00"}, {"weekday": 2, "start_time": "12:00", "end_time": "15:00"}]
+    assert client.put(_schedule_url(), json={"intervals": ok}, headers=auth(client)).status_code == 200
+    bad = {"intervals": [{"weekday": 7, "start_time": "09:00", "end_time": "10:00"}]}
+    assert client.put(_schedule_url(), json=bad, headers=auth(client)).status_code == 422
+
+
+def test_time_off_blocks_that_day_and_deleting_it_reopens_it(client):
+    day = tomorrow() + timedelta(days=1)
+    headers = auth(client)
+    assert len(_slots(client, day)) > 0
+    created = client.post("/api/v1/staff/barbers/1/time-off", json={"starts_on": day.isoformat(), "ends_on": day.isoformat(), "reason": "  Libur keluarga "}, headers=headers)
+    assert created.status_code == 201 and created.json()["reason"] == "Libur keluarga"
+    assert _slots(client, day) == []
+    assert len(_slots(client, day + timedelta(days=1))) > 0 and len(_slots(client, day, barber_id=2)) > 0   # neighbours unaffected
+    assert client.get(_schedule_url(), headers=headers).json()["time_off"][0]["id"] == created.json()["id"]
+    assert client.delete(f"/api/v1/staff/time-off/{created.json()['id']}", headers=headers).status_code == 204
+    assert len(_slots(client, day)) > 0
+
+
+def test_a_customer_cannot_book_a_day_the_barber_is_on_leave(client):
+    day = tomorrow() + timedelta(days=1)
+    slot = _slots(client, day)[0]
+    client.post("/api/v1/staff/barbers/1/time-off", json={"starts_on": day.isoformat(), "ends_on": day.isoformat()}, headers=auth(client))
+    response = client.post("/api/v1/bookings", json={"full_name": "Pelanggan Demo", "phone": "081234567890", "barber_id": 1, "service_id": 1, "starts_at": slot})
+    assert response.status_code == 409 and response.json()["code"] == "slot_unavailable"
+
+
+def test_time_off_is_refused_while_active_bookings_exist(client, engine):
+    add_booking(engine, status="confirmed")                        # tomorrow 10:00
+    body = {"starts_on": tomorrow().isoformat(), "ends_on": (tomorrow() + timedelta(days=2)).isoformat()}
+    response = client.post("/api/v1/staff/barbers/1/time-off", json=body, headers=auth(client))
+    assert response.status_code == 409 and response.json()["code"] == "time_off_conflict" and "1 reservasi" in response.json()["detail"]
+    assert client.get(_schedule_url(), headers=auth(client)).json()["time_off"] == []
+
+
+def test_time_off_ignores_finished_or_cancelled_bookings_and_other_barbers(client, engine):
+    add_booking(engine, status="cancelled", phone="081200000001")
+    add_booking(engine, status="completed", phone="081200000002", start=datetime.combine(tomorrow(), time(12), JKT))
+    add_booking(engine, barber_id=2, phone="081200000003", start=datetime.combine(tomorrow(), time(13), JKT))
+    body = {"starts_on": tomorrow().isoformat(), "ends_on": tomorrow().isoformat()}
+    assert client.post("/api/v1/staff/barbers/1/time-off", json=body, headers=auth(client)).status_code == 201
+
+
+@pytest.mark.parametrize("starts,ends,code", [(0, -1, "invalid_range"), (-5, -2, "time_off_in_past")])
+def test_time_off_rejects_backwards_and_past_ranges(client, starts, ends, code):
+    today = datetime.now(JKT).date()
+    body = {"starts_on": (today + timedelta(days=starts)).isoformat(), "ends_on": (today + timedelta(days=ends)).isoformat()}
+    response = client.post("/api/v1/staff/barbers/1/time-off", json=body, headers=auth(client))
+    assert response.status_code == 422 and response.json()["code"] == code
+
+
+def test_schedule_endpoints_are_admin_only_and_validate_ids(client):
+    barber = auth(client, "raka")
+    body = {"starts_on": tomorrow().isoformat(), "ends_on": tomorrow().isoformat()}
+    assert client.get(_schedule_url(), headers=barber).status_code == 403
+    assert client.put(_schedule_url(), json={"intervals": []}, headers=barber).status_code == 403
+    assert client.post("/api/v1/staff/barbers/1/time-off", json=body, headers=barber).status_code == 403
+    assert client.delete("/api/v1/staff/time-off/1", headers=barber).status_code == 403
+    assert client.get(_schedule_url(), headers={}).status_code == 401
+    admin = auth(client)
+    assert client.get(_schedule_url(99), headers=admin).status_code == 404
+    assert client.delete("/api/v1/staff/time-off/999", headers=admin).status_code == 404
+
+
+def test_cors_preflight_allows_put_and_delete_for_the_dev_frontend(client):
+    for method in ("PUT", "DELETE"):
+        response = client.options("/api/v1/staff/barbers/1/schedule", headers={
+            "Origin": "http://localhost:5173", "Access-Control-Request-Method": method, "Access-Control-Request-Headers": "authorization,content-type"})
+        assert response.status_code == 200 and method in response.headers["access-control-allow-methods"]

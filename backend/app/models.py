@@ -3,10 +3,10 @@
 All bookings store instants in UTC (TIMESTAMPTZ in PostgreSQL).
 Weekly schedule times are local wall-clock times in Asia/Jakarta.
 """
-from datetime import datetime, time
+from datetime import date, datetime, time
 
 from sqlalchemy import (
-    Boolean, CheckConstraint, DateTime, ForeignKey, Index,
+    Boolean, CheckConstraint, Date, DateTime, ForeignKey, Index,
     Integer, MetaData, SmallInteger, String, Text, Time,
     UniqueConstraint, func,
 )
@@ -88,6 +88,22 @@ class Schedule(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
 
     barber: Mapped[Barber] = relationship(back_populates="schedules")
+
+
+class BarberTimeOff(Base):
+    """Days a barber is unavailable (inclusive range, local Asia/Jakarta dates). Blocks new bookings."""
+    __tablename__ = "barber_time_off"
+    __table_args__ = (
+        CheckConstraint("ends_on >= starts_on", name="valid_range"),
+        Index("ix_barber_time_off_barber_start", "barber_id", "starts_on"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    barber_id: Mapped[int] = mapped_column(ForeignKey("barbers.id", ondelete="RESTRICT"), nullable=False)
+    starts_on: Mapped[date] = mapped_column(Date, nullable=False)
+    ends_on: Mapped[date] = mapped_column(Date, nullable=False)
+    reason: Mapped[str | None] = mapped_column(String(180), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 
 class StaffUser(Base):

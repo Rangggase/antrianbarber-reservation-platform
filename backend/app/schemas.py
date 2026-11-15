@@ -1,5 +1,5 @@
 """Pydantic request/response models for the reservation API."""
-from datetime import date, datetime
+from datetime import date, datetime, time
 import re
 from typing import Literal
 
@@ -135,6 +135,61 @@ class StaffBooking(BaseModel):
     queue_number: int | None
     price_idr: int
     allowed_next: list[str]
+
+
+class ScheduleInterval(BaseModel):
+    weekday: int = Field(ge=0, le=6)  # Monday=0 .. Sunday=6
+    start_time: time
+    end_time: time
+    model_config = {"from_attributes": True}
+
+
+class ScheduleUpdate(BaseModel):
+    intervals: list[ScheduleInterval] = Field(max_length=70)
+
+
+class TimeOffCreate(BaseModel):
+    starts_on: date
+    ends_on: date
+    reason: str | None = Field(default=None, max_length=180)
+
+
+class TimeOffView(BaseModel):
+    id: int
+    starts_on: date
+    ends_on: date
+    reason: str | None
+    model_config = {"from_attributes": True}
+
+
+class ScheduleView(BaseModel):
+    barber_id: int
+    barber_name: str
+    intervals: list[ScheduleInterval]
+    time_off: list[TimeOffView]
+
+
+class ReportRow(BaseModel):
+    id: int
+    name: str
+    total: int
+    completed: int
+    no_show: int
+    revenue_idr: int
+
+
+class ReportResponse(BaseModel):
+    start: date
+    end: date
+    counts: dict[str, int]
+    completed: int
+    revenue_idr: int
+    # no_show / (completed + no_show); None when nothing was resolved yet.
+    no_show_rate: float | None
+    by_service: list[ReportRow]
+    by_barber: list[ReportRow]
+    # 24 buckets (Asia/Jakarta hour of day), bookings that were not cancelled or no-show.
+    peak_hours: list[int]
 
 
 class QueueResponse(BaseModel):

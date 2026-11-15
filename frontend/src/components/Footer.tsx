@@ -6,7 +6,8 @@ export function FAQ() {return <section className="section-light section-alt" id=
     ['Apakah barber dan jadwal tersebut benar-benar tersedia?', 'Belum. Profil barber, harga, dan slot waktu merupakan data ilustratif. Pilihan waktu bukan konfirmasi ketersediaan nyata.'],
     ['Di mana nomor antrean saya tersimpan?', 'Antrean disimpan menggunakan localStorage browser. Data dapat hilang bila kamu menghapus data situs, menggunakan browser lain, atau mode private.'],
     ['Apakah saya bisa menghapus data demonstrasi?', 'Bisa. Buka halaman Reservasi, cari bagian Antreanku, lalu batalkan reservasi atau hapus semua data demo.'],
-    ['Kapan sistem online sungguhan tersedia?', 'Tahap berikutnya akan menggunakan backend FastAPI dan PostgreSQL untuk sinkronisasi, pengaturan slot, dan manajemen booking.'],
+    ['Kapan sistem online sungguhan tersedia?', 'Backend FastAPI dan PostgreSQL sudah ada untuk pengembangan lokal (slot, booking, dan area staf), tetapi belum ada deployment publik. Situs ini berjalan dalam mode demo.'],
+    ['Bagaimana data saya diperlakukan?', 'Ini demo portofolio, jadi gunakan nama dan nomor HP fiktif. Pada mode API, nama dan nomor HP disimpan apa adanya di database agar staf dapat menghubungi pelanggan, dan belum ada penghapusan otomatis. Jangan memasukkan data pelanggan nyata.'],
   ].map(([q,a]) => <details key={q}><summary>{q}<span>+</span></summary><p>{a}</p></details>)}
   </div></div></section>}
 export default function Footer() {const {pathname} = useLocation(); return <>{pathname !== '/reservasi' && <section className="footer-cta"><div className="container-shell cta-inner"><div><span>READY FOR A FRESH START?</span><h2>A good look starts <em>here.</em></h2></div><Link to="/reservasi" className="button button-gold">Coba Reservasi Demo <ArrowUpRight size={18}/></Link></div></section>}

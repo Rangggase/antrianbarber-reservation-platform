@@ -73,12 +73,16 @@ Alternatifnya set `TEST_DATABASE_URL` penuh (dipakai di CI).
 | GET | `/me` | Profil akun yang sedang login |
 | GET | `/queue?date&barber_id` | Antrean harian (WIB); barber otomatis dibatasi ke barber miliknya |
 | POST | `/bookings/{kode}/status` | Ubah status: `confirmed`, `in_service`, `completed`, `cancelled`, `no_show` |
+| GET | `/reports?start&end` | **Admin.** Pendapatan (booking selesai), tingkat tidak hadir, per barber/layanan, jam tersibuk. Default 30 hari terakhir, maksimal 92 hari |
+| GET / PUT | `/barbers/{id}/schedule` | **Admin.** Baca / ganti utuh jam kerja mingguan (WIB). Reservasi yang sudah ada tidak diubah |
+| POST | `/barbers/{id}/time-off` | **Admin.** Tambah cuti; ditolak (409) bila masih ada reservasi aktif pada rentang itu |
+| DELETE | `/time-off/{id}` | **Admin.** Hapus cuti |
 
 Alur status: `pending → confirmed | cancelled`, `confirmed → in_service | cancelled | no_show` (no_show hanya setelah jam mulai), `in_service → completed`; `completed`, `cancelled`, `no_show` final. Nomor antrean diberikan saat pertama kali `confirmed`: berurutan per barber per hari WIB dan tidak pernah dipakai ulang. `GET /bookings/{kode}` untuk pelanggan kini juga memuat `queue_number`, `ahead_count`, dan `estimated_wait_minutes` (perkiraan, hanya hari ini).
 
 **Format error** (semua endpoint): `{"detail": "<pesan>", "code": "<kode>", "request_id": "<id>"}`. Kode antara lain `slot_unavailable`, `slot_taken`, `customer_day_conflict`, `invalid_token`, `booking_not_found`, `validation_error` (disertai `errors[]`), `rate_limited`, `database_unavailable`, `internal_error`. Header `X-Request-ID` ada di setiap respons dan muncul di log.
 
-Migrasi: lihat juga [README_MIGRATION_v2_2b.md](README_MIGRATION_v2_2b.md). Migrasi `20261115_02` menambah indeks unik "satu tiket aktif per pelanggan per hari (WIB)", dan `20261116_03` menambah tabel `staff_users` serta indeks unik nomor antrean; jalankan `alembic upgrade head` pada database dev Anda.
+Migrasi: lihat juga [README_MIGRATION_v2_2b.md](README_MIGRATION_v2_2b.md). Migrasi `20261115_02` menambah indeks unik "satu tiket aktif per pelanggan per hari (WIB)", dan `20261116_03` menambah tabel `staff_users` serta indeks unik nomor antrean, dan `20261117_04` menambah tabel `barber_time_off` (cuti); jalankan `alembic upgrade head` pada database dev Anda.
 
 ## Struktur
 ```text

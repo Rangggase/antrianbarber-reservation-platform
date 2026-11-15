@@ -105,7 +105,7 @@ export function clearSession(): void {
 
 // --- requests ----------------------------------------------------------------------
 
-async function request(path: string, method: 'GET' | 'POST', token?: string, body?: unknown): Promise<unknown> {
+async function request(path: string, method: 'GET' | 'POST' | 'PUT' | 'DELETE', token?: string, body?: unknown): Promise<unknown> {
   const controller = new AbortController();
   const timer = window.setTimeout(() => controller.abort(), 10000);
   try {
@@ -135,6 +135,7 @@ async function request(path: string, method: 'GET' | 'POST', token?: string, bod
       } catch { /* keep the generic message */ }
       throw new StaffApiError(detail, response.status, code);
     }
+    if (response.status === 204) return null;
     return (await response.json()) as unknown;
   } catch (err) {
     if (err instanceof StaffApiError) throw err;
@@ -172,4 +173,68 @@ export async function fetchBarbers(): Promise<BarberOption[]> {
   if (!Array.isArray(raw)) throw new StaffApiError('Format daftar barber tidak sesuai.', 0, 'contract');
   return raw.filter((b): b is BarberOption => isRecord(b) && Number.isInteger(b.id) && typeof b.full_name === 'string')
     .map((b) => ({ id: b.id, full_name: b.full_name }));
+}
+
+// --- schedule and time off (admin) -------------------------------------------------
+
+export type Interval = { weekday: number; start_time: string; end_time: string }; // "HH:MM"
+export type TimeOff = { id: number; starts_on: string; ends_on: string; reason: string | null };
+export type ScheduleView = { barber_id: number; barber_name: string; intervals: Interval[]; time_off: TimeOff[] };
+
+const isTimeText = (x: unknown): x is string => typeof x === 'string' && /^\d{2}:\d{2}(:\d{2})?$/.test(x);
+
+function parseSchedule(raw: unknown): ScheduleView {
+  if (!isRecord(raw) || !Number.isInteger(raw.barber_id) || typeof raw.barber_name !== 'string' || !Array.isArray(raw.intervals) || !Array.isArray(raw.time_off)) {
+    throw new StaffApiError('Format jadwal dari backend tidak sesuai.', 0, 'contract');
+  }
+  const intervals = raw.intervals.map((i): Interval => {
+    if (!isRecord(i) || !Number.isInteger(i.weekday) || !isTimeText(i.start_time) || !isTimeText(i.end_time)) throw new StaffApiError('Format jadwal dari backend tidak sesuai.', 0, 'contract');
+    return { weekday: i.weekday as number, start_time: i.start_time.slice(0, 5), end_time: i.end_time.slice(0, 5) };
+  });
+  const timeOff = raw.time_off.map((t): TimeOff => {
+    if (!isRecord(t) || !Number.isInteger(t.id) || typeof t.starts_on !== 'string' || typeof t.ends_on !== 'string') throw new StaffApiError('Format cuti dari backend tidak sesuai.', 0, 'contract');
+    return { id: t.id as number, starts_on: t.starts_on, ends_on: t.ends_on, reason: typeof t.reason === 'string' ? t.reason : null };
+  });
+  return { barber_id: raw.barber_id as number, barber_name: raw.barber_name, intervals, time_off: timeOff };
+}
+
+export async function fetchSchedule(token: string, barberId: number): Promise<ScheduleView> {
+  return parseSchedule(await request(`/api/v1/staff/barbers/${barberId}/schedule`, 'GET', token));
+}
+
+export async function saveSchedule(token: string, barberId: number, intervals: Interval[]): Promise<ScheduleView> {
+  return parseSchedule(await request(`/api/v1/staff/barbers/${barberId}/schedule`, 'PUT', token, { intervals }));
+}
+
+export async function addTimeOff(token: string, barberId: number, startsOn: string, endsOn: string, reason: string): Promise<void> {
+  await request(`/api/v1/staff/barbers/${barberId}/time-off`, 'POST', token, { starts_on: startsOn, ends_on: endsOn, reason: reason.trim() || null });
+}
+
+export async function removeTimeOff(token: string, id: number): Promise<void> {
+  await request(`/api/v1/staff/time-off/${id}`, 'DELETE', token);
+}
+
+// --- reports (admin) ---------------------------------------------------------------
+
+export type ReportRow = { id: number; name: string; total: number; completed: number; no_show: number; revenue_idr: number };
+export type Report = {
+  start: string; end: string; counts: Record<string, number>; completed: number; revenue_idr: number;
+  no_show_rate: number | null; by_service: ReportRow[]; by_barber: ReportRow[]; peak_hours: number[];
+};
+
+const isRow = (x: unknown): x is ReportRow => isRecord(x) && Number.isInteger(x.id) && typeof x.name === 'string' &&
+  [x.total, x.completed, x.no_show, x.revenue_idr].every(Number.isInteger);
+
+function isReport(x: unknown): x is Report {
+  return isRecord(x) && typeof x.start === 'string' && typeof x.end === 'string' && isRecord(x.counts) &&
+    Number.isInteger(x.completed) && Number.isInteger(x.revenue_idr) &&
+    (x.no_show_rate === null || typeof x.no_show_rate === 'number') &&
+    Array.isArray(x.by_service) && x.by_service.every(isRow) && Array.isArray(x.by_barber) && x.by_barber.every(isRow) &&
+    Array.isArray(x.peak_hours) && x.peak_hours.length === 24 && x.peak_hours.every(Number.isInteger);
+}
+
+export async function fetchReport(token: string, start: string, end: string): Promise<Report> {
+  const raw = await request(`/api/v1/staff/reports?${new URLSearchParams({ start, end })}`, 'GET', token);
+  if (!isReport(raw)) throw new StaffApiError('Format laporan dari backend tidak sesuai.', 0, 'contract');
+  return raw;
 }
