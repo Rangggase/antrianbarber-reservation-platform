@@ -34,15 +34,17 @@ Tahap berikutnya menambahkan backend FastAPI + PostgreSQL. Pelanggan dapat memes
 
 - 10/10 pengujian manual yang dilakukan pengembang lulus.
 - 19/19 Playwright E2E pada Chromium lokal lulus.
-- Lighthouse Beranda: 100 Performance, 95 Accessibility, 100 Best Practices, 92 SEO.
-- Lighthouse Reservasi: 99 Performance, 96 Accessibility, 100 Best Practices, 91 SEO.
+- Lighthouse Beranda (median 3 kali jalan, setelah redesain Karcis): Desktop 100 Performance, 100 Accessibility, 100 Best Practices, 92 SEO; Mobile 95 / 100 / 100 / 92. Performance mobile semula 80 (LCP 4,7 detik) karena foto hero dimuat dari host eksternal; setelah foto dijadikan webp lokal (50–89 KB, dari 478 KB) LCP turun menjadi sekitar 2,6 detik.
+- Lighthouse Reservasi: Desktop 100 / 100 / 100 / 91; Mobile 97 / 100 / 100 / 91.
 
-Angka di atas berasal dari rilis frontend v2.1e. Untuk backend dan area staf (diukur pada mesin pengembang, bukan di CI):
+Pengukuran memakai Lighthouse 12.6.1 pada build produksi lokal (`vite preview`), 15 November 2026. Angka rilis v2.1e sebelumnya (Beranda 100/95/100/92, Reservasi 99/96/100/91) tidak dibandingkan langsung karena mode perangkatnya tidak pernah dipastikan. Untuk backend dan area staf (diukur pada mesin pengembang, bukan di CI):
 
 - 118 tes backend lulus: 104 pada SQLite dan 14 pada PostgreSQL asli (constraint, migrasi bolak-balik, balapan konkurensi).
-- 40 tes Playwright lulus: 19 baseline demo, 13 area staf, 3 build produksi memakai API, dan 5 dengan API di-mock.
+- 63 tes Playwright lulus: 29 baseline demo (termasuk shell pelanggan), 14 area staf, 3 build produksi memakai API, 5 dengan API di-mock, dan 12 untuk sistem desain.
 
-Hasil tersebut tidak menyatakan sudah ada pelanggan nyata atau reservasi produksi. Mode perangkat untuk tiap laporan Lighthouse perlu diperjelas saat bukti tambahan tersedia.
+Sprint 5 (sistem desain) mengganti tampilan pelanggan dan area staf dengan token dan komponen baru. Pengukuran sesudahnya ada di `design-system/audit/after/metrics.txt`: di 8 rute pelanggan pada lebar 320 sampai 1440px, judul tunggal, tanpa overflow horizontal, dan tanpa teks di bawah 13px. Di layar ponsel dan tablet tidak ada kontrol di bawah 44px; di desktop tersisa satu tombol header 40px yang memang diizinkan untuk pointer halus. Uji aksesibilitas otomatis (axe) sudah terpasang: tujuh rute pelanggan lulus untuk pelanggaran serius dan kritis. Lighthouse sudah diukur ulang (lihat di atas). Belum dilakukan: pemeriksaan pelanggaran axe tingkat sedang dan ringan.
+
+Hasil tersebut tidak menyatakan sudah ada pelanggan nyata atau reservasi produksi. Skor Lighthouse adalah estimasi laboratorium di mesin pengembang.
 
 ## Pelajaran yang diperoleh
 

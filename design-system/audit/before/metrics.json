@@ -1,0 +1,401 @@
+{
+  "desktop-home": {
+    "interactive": 22,
+    "under44": 15,
+    "under24": 12,
+    "under44Samples": [
+      "Antrian Barber — beranda",
+      "Beranda",
+      "Layanan",
+      "Barber",
+      "Inspirasi",
+      "Tentang",
+      "FAQ",
+      "Jelajahi Gaya"
+    ],
+    "textUnder12px": 19,
+    "textUnder12Samples": [
+      "YOUR STYLE, YOUR SIGNATU",
+      "DEMONSTRATION PROJECT\nDI",
+      "01 / THE CRAFT",
+      "THE ART OF LOOKING SHARP",
+      "EST.",
+      "STUDIO"
+    ],
+    "hOverflow": false,
+    "docHeight": 1960,
+    "h1": 1,
+    "fonts": [
+      "Georgia",
+      "Segoe UI"
+    ]
+  },
+  "desktop-booking-step1": {
+    "interactive": 23,
+    "under44": 15,
+    "under24": 12,
+    "under44Samples": [
+      "Antrian Barber — beranda",
+      "Beranda",
+      "Layanan",
+      "Barber",
+      "Inspirasi",
+      "Tentang",
+      "FAQ",
+      "Hapus semua data demo"
+    ],
+    "textUnder12px": 27,
+    "textUnder12Samples": [
+      "DIGITAL BOOKING EXPERIEN",
+      "ANTREAN LOKAL",
+      "Hanya simulasi · belum t",
+      "01",
+      "Layanan",
+      "02"
+    ],
+    "hOverflow": false,
+    "docHeight": 2208,
+    "h1": 0,
+    "fonts": [
+      "Georgia",
+      "Segoe UI"
+    ]
+  },
+  "desktop-booking-step2": {
+    "interactive": 45,
+    "under44": 15,
+    "under24": 12,
+    "under44Samples": [
+      "Antrian Barber — beranda",
+      "Beranda",
+      "Layanan",
+      "Barber",
+      "Inspirasi",
+      "Tentang",
+      "FAQ",
+      "Hapus semua data demo"
+    ],
+    "textUnder12px": 27,
+    "textUnder12Samples": [
+      "DIGITAL BOOKING EXPERIEN",
+      "ANTREAN LOKAL",
+      "Hanya simulasi · belum t",
+      "Layanan",
+      "02",
+      "Barber & waktu"
+    ],
+    "hOverflow": false,
+    "docHeight": 2359,
+    "h1": 0,
+    "fonts": [
+      "Georgia",
+      "Segoe UI"
+    ]
+  },
+  "focusRing": {
+    "outlineStyle": "solid",
+    "outlineWidth": "3px",
+    "boxShadow": "none"
+  },
+  "desktop-staff-login": {
+    "interactive": 6,
+    "under44": 2,
+    "under24": 2,
+    "under44Samples": [
+      "Kembali ke situs pelanggan",
+      "Situs pelanggan"
+    ],
+    "textUnder12px": 2,
+    "textUnder12Samples": [
+      "Staf",
+      "BACK OFFICE"
+    ],
+    "hOverflow": false,
+    "docHeight": 900,
+    "h1": 1,
+    "fonts": [
+      "Segoe UI",
+      "Georgia"
+    ]
+  },
+  "desktop-staff-dashboard": {
+    "interactive": 23,
+    "under44": 16,
+    "under24": 8,
+    "under44Samples": [
+      "Kembali ke situs pelanggan",
+      "Situs pelanggan",
+      "081234500001",
+      "081234500002",
+      "Selesai — Sari Wulandari",
+      "081234500003",
+      "Mulai layanan — Andi Pratama",
+      "Batalkan — Andi Pratama"
+    ],
+    "textUnder12px": 20,
+    "textUnder12Samples": [
+      "Staf",
+      "ADMIN",
+      "Antrean #1",
+      "AB-20261110-A00001",
+      "SELESAI",
+      "AB-20261110-A00002"
+    ],
+    "hOverflow": false,
+    "docHeight": 1185,
+    "h1": 1,
+    "fonts": [
+      "Segoe UI",
+      "Georgia"
+    ]
+  },
+  "desktop-staff-reports": {
+    "interactive": 6,
+    "under44": 2,
+    "under24": 2,
+    "under44Samples": [
+      "Kembali ke situs pelanggan",
+      "Situs pelanggan"
+    ],
+    "textUnder12px": 16,
+    "textUnder12Samples": [
+      "Staf",
+      "ADMIN",
+      "PENDAPATAN",
+      "BOOKING SELESAI",
+      "TINGKAT TIDAK HADIR",
+      "TOTAL BOOKING"
+    ],
+    "hOverflow": false,
+    "docHeight": 1099,
+    "h1": 1,
+    "fonts": [
+      "Segoe UI",
+      "Georgia"
+    ]
+  },
+  "desktop-staff-schedule": {
+    "interactive": 39,
+    "under44": 31,
+    "under24": 2,
+    "under44Samples": [
+      "Kembali ke situs pelanggan",
+      "Situs pelanggan",
+      "Senin mulai",
+      "Senin selesai",
+      "Hapus jam Senin 09:00-19:00",
+      "Tambah jam Senin",
+      "Selasa mulai",
+      "Selasa selesai"
+    ],
+    "textUnder12px": 2,
+    "textUnder12Samples": [
+      "Staf",
+      "ADMIN"
+    ],
+    "hOverflow": false,
+    "docHeight": 1498,
+    "h1": 1,
+    "fonts": [
+      "Segoe UI",
+      "Georgia"
+    ]
+  },
+  "mobile-home": {
+    "interactive": 17,
+    "under44": 9,
+    "under24": 6,
+    "under44Samples": [
+      "Antrian Barber — beranda",
+      "Jelajahi Gaya",
+      "ANTRIAN\nBARBER.",
+      "Layanan",
+      "Barber Team",
+      "Inspirasi Gaya",
+      "Reservasi Demo",
+      "FAQ"
+    ],
+    "textUnder12px": 18,
+    "textUnder12Samples": [
+      "YOUR STYLE, YOUR SIGNATU",
+      "DEMONSTRATION PROJECT\nDI",
+      "01 / THE CRAFT",
+      "THE ART OF LOOKING SHARP",
+      "EST.",
+      "STUDIO"
+    ],
+    "hOverflow": false,
+    "docHeight": 3088,
+    "h1": 1,
+    "fonts": [
+      "Segoe UI",
+      "Georgia"
+    ]
+  },
+  "mobile-booking-step1": {
+    "interactive": 18,
+    "under44": 9,
+    "under24": 6,
+    "under44Samples": [
+      "Antrian Barber — beranda",
+      "Hapus semua data demo",
+      "ANTRIAN\nBARBER.",
+      "Layanan",
+      "Barber Team",
+      "Inspirasi Gaya",
+      "Reservasi Demo",
+      "FAQ"
+    ],
+    "textUnder12px": 25,
+    "textUnder12Samples": [
+      "DIGITAL BOOKING EXPERIEN",
+      "01",
+      "Layanan",
+      "02",
+      "Barber & waktu",
+      "03"
+    ],
+    "hOverflow": false,
+    "docHeight": 2959,
+    "h1": 0,
+    "fonts": [
+      "Segoe UI",
+      "Georgia"
+    ]
+  },
+  "mobile-booking-step2": {
+    "interactive": 40,
+    "under44": 9,
+    "under24": 6,
+    "under44Samples": [
+      "Antrian Barber — beranda",
+      "Hapus semua data demo",
+      "ANTRIAN\nBARBER.",
+      "Layanan",
+      "Barber Team",
+      "Inspirasi Gaya",
+      "Reservasi Demo",
+      "FAQ"
+    ],
+    "textUnder12px": 25,
+    "textUnder12Samples": [
+      "DIGITAL BOOKING EXPERIEN",
+      "Layanan",
+      "02",
+      "Barber & waktu",
+      "03",
+      "Data kamu"
+    ],
+    "hOverflow": false,
+    "docHeight": 3028,
+    "h1": 0,
+    "fonts": [
+      "Segoe UI",
+      "Georgia"
+    ]
+  },
+  "mobile-staff-login": {
+    "interactive": 6,
+    "under44": 2,
+    "under24": 2,
+    "under44Samples": [
+      "Kembali ke situs pelanggan",
+      "Situs pelanggan"
+    ],
+    "textUnder12px": 2,
+    "textUnder12Samples": [
+      "Staf",
+      "BACK OFFICE"
+    ],
+    "hOverflow": false,
+    "docHeight": 844,
+    "h1": 1,
+    "fonts": [
+      "Segoe UI",
+      "Georgia"
+    ]
+  },
+  "mobile-staff-dashboard": {
+    "interactive": 23,
+    "under44": 16,
+    "under24": 8,
+    "under44Samples": [
+      "Kembali ke situs pelanggan",
+      "Situs pelanggan",
+      "081234500001",
+      "081234500002",
+      "Selesai — Sari Wulandari",
+      "081234500003",
+      "Mulai layanan — Andi Pratama",
+      "Batalkan — Andi Pratama"
+    ],
+    "textUnder12px": 20,
+    "textUnder12Samples": [
+      "Staf",
+      "ADMIN",
+      "Antrean #1",
+      "AB-20261110-A00001",
+      "SELESAI",
+      "AB-20261110-A00002"
+    ],
+    "hOverflow": false,
+    "docHeight": 2059,
+    "h1": 1,
+    "fonts": [
+      "Segoe UI",
+      "Georgia"
+    ]
+  },
+  "mobile-staff-reports": {
+    "interactive": 6,
+    "under44": 2,
+    "under24": 2,
+    "under44Samples": [
+      "Kembali ke situs pelanggan",
+      "Situs pelanggan"
+    ],
+    "textUnder12px": 16,
+    "textUnder12Samples": [
+      "Staf",
+      "ADMIN",
+      "PENDAPATAN",
+      "BOOKING SELESAI",
+      "TINGKAT TIDAK HADIR",
+      "TOTAL BOOKING"
+    ],
+    "hOverflow": false,
+    "docHeight": 1423,
+    "h1": 1,
+    "fonts": [
+      "Segoe UI",
+      "Georgia"
+    ]
+  },
+  "mobile-staff-schedule": {
+    "interactive": 39,
+    "under44": 31,
+    "under24": 2,
+    "under44Samples": [
+      "Kembali ke situs pelanggan",
+      "Situs pelanggan",
+      "Senin mulai",
+      "Senin selesai",
+      "Hapus jam Senin 09:00-19:00",
+      "Tambah jam Senin",
+      "Selasa mulai",
+      "Selasa selesai"
+    ],
+    "textUnder12px": 2,
+    "textUnder12Samples": [
+      "Staf",
+      "ADMIN"
+    ],
+    "hOverflow": false,
+    "docHeight": 1804,
+    "h1": 1,
+    "fonts": [
+      "Segoe UI",
+      "Georgia"
+    ]
+  }
+}

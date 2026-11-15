@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router';
-import { ArrowLeft } from 'lucide-react';
 import { anyApiMode } from '../api/config';
 import { bookingDateWib } from '../api/bookings';
 import { formatRupiah } from '../data/services';
 import { StaffApiError, clearSession, fetchReport, readSession, type Report, type ReportRow } from '../api/staff';
+import { PeakChart } from '../components/staff/PeakChart';
 
 const DAY_MS = 86_400_000;
 const todayWib = () => bookingDateWib(new Date().toISOString());
@@ -17,7 +17,7 @@ function RowsTable({ title, rows }: { title: string; rows: ReportRow[] }) {
     <h2>{title}</h2>
     {rows.length === 0 ? <p className="staff-muted">Belum ada data pada rentang ini.</p> : <table className="staff-table">
       <thead><tr><th scope="col">Nama</th><th scope="col">Booking</th><th scope="col">Selesai</th><th scope="col">Tidak hadir</th><th scope="col">Pendapatan</th></tr></thead>
-      <tbody>{rows.map((r) => <tr key={r.id}><th scope="row">{r.name}</th><td>{r.total}</td><td>{r.completed}</td><td>{r.no_show}</td><td>{formatRupiah(r.revenue_idr)}</td></tr>)}</tbody>
+      <tbody>{rows.map((r) => <tr key={r.id}><th scope="row">{r.name}</th><td data-label="Booking">{r.total}</td><td data-label="Selesai">{r.completed}</td><td data-label="Tidak hadir">{r.no_show}</td><td data-label="Pendapatan">{formatRupiah(r.revenue_idr)}</td></tr>)}</tbody>
     </table>}
   </section>;
 }
@@ -50,14 +50,12 @@ export default function StaffReportsPage() {
 
   const current = result.key === key ? result : { key };
   const report = current.report;
-  const peakMax = report ? Math.max(1, ...report.peak_hours) : 1;
   const busyHours = report ? report.peak_hours.map((count, hour) => ({ hour, count })).filter((h) => h.count > 0) : [];
 
   return <section className="staff-dashboard" aria-labelledby="staff-report-title">
     <div className="staff-dash-head">
       <div><p className="staff-eyebrow">ADMIN</p><h1 id="staff-report-title">Laporan</h1>
         <p className="staff-muted">Berdasarkan tanggal reservasi (WIB). Pendapatan dihitung dari booking berstatus selesai.</p></div>
-      <Link className="button button-outline-dark" to="/staff"><ArrowLeft size={16} aria-hidden="true" /> Antrean</Link>
     </div>
     <div className="staff-toolbar">
       <div className="staff-field"><label htmlFor="report-start">Dari</label><input id="report-start" type="date" value={start} max={end} onChange={(e) => e.target.value && setStart(e.target.value)} /></div>
@@ -76,10 +74,7 @@ export default function StaffReportsPage() {
       <RowsTable title="Per layanan" rows={report.by_service} />
       <section className="staff-report-block" aria-label="Jam tersibuk">
         <h2>Jam tersibuk</h2>
-        {busyHours.length === 0 ? <p className="staff-muted">Belum ada data pada rentang ini.</p> : <ul className="staff-peaks">
-          {busyHours.map(({ hour, count }) => <li key={hour}><span>{String(hour).padStart(2, '0')}:00</span>
-            <span className="staff-bar" aria-hidden="true"><i style={{ width: `${(count / peakMax) * 100}%` }} /></span><b>{count}</b></li>)}
-        </ul>}
+        {busyHours.length === 0 ? <p className="staff-muted">Belum ada data pada rentang ini.</p> : <PeakChart points={busyHours} />}
       </section>
     </>}
   </section>;

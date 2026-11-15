@@ -18,7 +18,7 @@ function seed(): Row[] {
   const day = todayWib();
   const row = (code: string, name: string, phone: string, barberId: number, hour: string): Row => ({
     reference_code: code, customer_name: name, customer_phone: phone, barber_id: barberId, barber_name: barberId === 1 ? 'Raka Pratama' : 'Dimas Putra',
-    service_id: 1, service_name: 'Classic Haircut', starts_at: `${day}T${hour}:00+07:00`, ends_at: `${day}T${hour}:45+07:00`,
+    service_id: 1, service_name: 'Potong Klasik', starts_at: `${day}T${hour}:00+07:00`, ends_at: `${day}T${hour}:45+07:00`,
     status: 'pending', queue_number: null, price_idr: 55000, allowed_next: NEXT.pending,
   });
   return [row('AB-20261110-AAAA000001', 'Budi Demo', '081200000001', 1, '10'), row('AB-20261110-BBBB000002', 'Sari Demo', '081200000002', 2, '11')];
@@ -78,7 +78,7 @@ async function mockStaffApi(page: Page, opts: Opts = {}) {
       return reply(200, {
         start: url.searchParams.get('start'), end: url.searchParams.get('end'),
         counts: { pending: 1, confirmed: 0, in_service: 0, completed: 5, cancelled: 1, no_show: 1 }, completed: 5, revenue_idr: 375000, no_show_rate: 0.1667,
-        by_service: [{ id: 1, name: 'Classic Haircut', total: 7, completed: 5, no_show: 1, revenue_idr: 375000 }],
+        by_service: [{ id: 1, name: 'Potong Klasik', total: 7, completed: 5, no_show: 1, revenue_idr: 375000 }],
         by_barber: [{ id: 1, name: 'Raka Pratama', total: 4, completed: 3, no_show: 0, revenue_idr: 225000 }, { id: 2, name: 'Dimas Putra', total: 3, completed: 2, no_show: 1, revenue_idr: 150000 }],
         peak_hours: peak,
       });
@@ -195,6 +195,11 @@ test('logging out clears the session', async ({ page }) => {
   await expect(page).toHaveURL(/\/staff\/login$/);
 });
 
+test('in server mode the demo strip says the data is stored on the demo server', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('note')).toContainText('Data tersimpan di server demo; gunakan data fiktif.');
+});
+
 test('customer sees queue number and estimated wait after checking status', async ({ page }) => {
   const code = 'AB-20261110-CCCC000003';
   const day = todayWib();
@@ -206,7 +211,7 @@ test('customer sees queue number and estimated wait after checking status', asyn
     const url = new URL(route.request().url());
     const reply = (json: unknown) => route.fulfill({ status: 200, json, headers: cors });
     if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, body: '', headers: cors });
-    if (url.pathname.endsWith('/services')) return reply([{ id: 1, code: 'classic', name: 'Classic Haircut', description: 'x', duration_minutes: 45, price_idr: 55000 }]);
+    if (url.pathname.endsWith('/services')) return reply([{ id: 1, code: 'classic', name: 'Potong Klasik', description: 'x', duration_minutes: 45, price_idr: 55000 }]);
     if (url.pathname.endsWith('/barbers')) return reply([{ id: 1, code: 'raka', full_name: 'Raka Pratama', specialty: 'Fade', bio: null }]);
     if (url.pathname.endsWith(`/bookings/${code}`)) return reply({ reference_code: code, barber_id: 1, service_id: 1, starts_at: `${day}T15:00:00+07:00`, ends_at: `${day}T15:45:00+07:00`, status: 'confirmed', price_idr: 55000, queue_number: 4, ahead_count: 2, estimated_wait_minutes: 90 });
     return route.fulfill({ status: 404, json: { detail: 'Not Found' }, headers: cors });

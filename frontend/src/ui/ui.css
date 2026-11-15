@@ -1,0 +1,289 @@
+/*
+ * New design system components (design-system/MASTER.md). Everything is prefixed ds- and opt-in:
+ * existing pages are untouched until they are migrated in Sprint 5b-5d.
+ *
+ * Source order matters (equal specificity, last rule wins): base rule -> variant -> state -> responsive.
+ * Keep every media query AFTER the base rule of the component it adjusts.
+ * Raw colour values are forbidden here: use the tokens from styles/tokens.css.
+ */
+
+/* ---------- root scope: opt in to the new typography ---------- */
+.ds-root {
+  background: var(--color-surface-page);
+  color: var(--color-ink);
+  font-family: var(--font-ds);
+  font-size: var(--text-ds-body);
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums lining-nums;
+  -webkit-font-smoothing: antialiased;
+}
+.ds-num { font-variant-numeric: tabular-nums lining-nums; }
+
+/* ---------- focus ring: 3px, never removed ---------- */
+.ds-btn:focus-visible,
+.ds-input:focus-visible,
+.ds-link:focus-visible {
+  outline: 3px solid var(--color-action);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--color-surface);
+}
+/* blue on ink is only 2.44:1, so the ring flips to the ticket colour on ink surfaces */
+.ds-on-ink .ds-btn:focus-visible,
+.ds-on-ink .ds-link:focus-visible {
+  outline-color: var(--color-ticket);
+  box-shadow: 0 0 0 2px var(--color-ink);
+}
+
+/* ---------- Button ---------- */
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--target-min);
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  font-size: var(--text-ds-body);
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color var(--duration-press), border-color var(--duration-press), color var(--duration-press);
+}
+.ds-btn--primary { background: var(--color-action); border-color: var(--color-action); color: var(--color-surface); }
+.ds-btn--primary:hover { background: var(--color-action-hover); border-color: var(--color-action-hover); }
+.ds-btn--secondary { background: transparent; border-color: var(--color-ink); color: var(--color-ink); }
+.ds-btn--secondary:hover { background: var(--color-surface); }
+.ds-btn--quiet { background: transparent; color: var(--color-action); padding: 0 8px; }
+.ds-btn--quiet:hover { text-decoration: underline; }
+.ds-btn--danger { background: transparent; border-color: var(--color-danger); color: var(--color-danger); }
+.ds-btn--danger:hover { background: var(--color-danger-bg); }
+.ds-btn--full { width: 100%; }
+/* on an ink surface the one primary action is inverted (13.46:1 instead of 2.44:1 for blue) */
+.ds-on-ink .ds-btn--primary { background: var(--color-ticket); border-color: var(--color-ticket); color: var(--color-ink); }
+.ds-on-ink .ds-btn--primary:hover { background: var(--color-surface); border-color: var(--color-surface); }
+.ds-on-ink .ds-btn--secondary { border-color: var(--color-on-ink); color: var(--color-on-ink); }
+.ds-on-ink .ds-btn--secondary:hover { background: transparent; border-color: var(--color-ticket); color: var(--color-ticket); }
+.ds-on-ink .ds-btn--quiet { color: var(--color-ticket); }
+.ds-btn:disabled,
+.ds-btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+.ds-btn__spinner { animation: ds-spin 900ms linear infinite; }
+@keyframes ds-spin { to { transform: rotate(360deg); } }
+@media (pointer: fine) { .ds-btn--compact { min-height: var(--target-compact); } }
+
+/* ---------- Field ---------- */
+.ds-field { display: flex; flex-direction: column; gap: 6px; }
+.ds-label { font-size: var(--text-ds-label); font-weight: 600; line-height: 1.4; }
+.ds-req { color: var(--color-danger); }
+.ds-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--color-control);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: var(--text-ds-body);  /* 16px: stops iOS zooming into the field */
+}
+.ds-input::placeholder { color: var(--color-ink-muted); }
+.ds-input[aria-invalid="true"] { border-color: var(--color-danger); box-shadow: inset 0 0 0 1px var(--color-danger); }
+.ds-hint { margin: 0; font-size: var(--text-ds-caption); line-height: 1.45; color: var(--color-ink-muted); }
+.ds-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--text-ds-caption);
+  line-height: 1.45;
+  font-weight: 500;
+  color: var(--color-danger);
+}
+.ds-error svg { flex: none; margin-top: 1px; }
+
+/* ---------- Notice ---------- */
+.ds-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-surface);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: var(--text-ds-label);
+  line-height: 1.5;
+}
+.ds-notice__icon { flex: none; margin-top: 1px; }
+.ds-notice__body { flex: 1 1 auto; min-width: 0; }
+.ds-notice__title { display: block; font-weight: 650; }
+.ds-notice__action { flex: none; margin-left: auto; }
+.ds-notice--info .ds-notice__icon { color: var(--color-action); }
+.ds-notice--success { background: var(--color-success-bg); border-color: transparent; }
+.ds-notice--success .ds-notice__icon { color: var(--color-success); }
+.ds-notice--warning { background: var(--color-warn-bg); border-color: transparent; }
+.ds-notice--warning .ds-notice__icon { color: var(--color-warn); }
+.ds-notice--danger { background: var(--color-danger-bg); border-color: transparent; }
+.ds-notice--danger .ds-notice__icon { color: var(--color-danger); }
+@media (max-width: 640px) { .ds-notice { flex-wrap: wrap; } .ds-notice__action { margin-left: 32px; } }
+
+/* ---------- StatusBadge: icon + text + colour, never colour alone ---------- */
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-tag);
+  font-size: var(--text-ds-caption);
+  font-weight: 650;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.ds-badge svg { flex: none; }
+.ds-badge--warn { background: var(--color-warn-bg); color: var(--color-warn); }
+.ds-badge--success { background: var(--color-success-bg); color: var(--color-success); }
+.ds-badge--progress { background: var(--color-progress-bg); color: var(--color-progress); }
+.ds-badge--neutral { background: var(--color-neutral-bg); color: var(--color-neutral); }
+.ds-badge--danger { background: var(--color-danger-bg); color: var(--color-danger); }
+
+/* ---------- Ticket: the one memorable element ---------- */
+.ds-ticket {
+  /* the colour BEHIND the ticket, used for the perforation notches; override on non-page surfaces */
+  --ds-ticket-behind: var(--color-surface-page);
+  position: relative;
+  width: 340px;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-ticket);
+  background: var(--color-ticket);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-ticket);
+}
+.ds-ticket__head { padding: 18px 20px 16px; }
+.ds-ticket__brand { display: flex; justify-content: space-between; gap: 8px; font-size: var(--text-ds-caption); font-weight: 600; color: var(--color-ink-2); }
+.ds-ticket__service { margin: 14px 0 2px; font-size: 1.25rem; font-weight: 650; line-height: 1.25; }
+.ds-ticket__who { margin: 0; font-size: var(--text-ds-label); color: var(--color-ink-2); }
+.ds-ticket__perf { position: relative; height: 22px; }
+.ds-ticket__perf::before { content: ""; position: absolute; left: 14px; right: 14px; top: 10px; border-top: 2px dashed var(--color-ink-2); opacity: 0.45; }
+.ds-ticket__perf::after,
+.ds-ticket__notch { content: ""; position: absolute; top: 1px; width: 20px; height: 20px; border-radius: 50%; background: var(--ds-ticket-behind); }
+.ds-ticket__perf::after { left: -10px; }
+.ds-ticket__notch { right: -10px; }
+.ds-ticket__stub { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: end; padding: 8px 20px 18px; }
+.ds-ticket__big {
+  font-size: var(--text-ds-ticket);
+  line-height: 0.95;
+  font-weight: 800;
+  font-stretch: 75%;  /* condensed: the width axis of Archivo */
+  letter-spacing: -0.03em;
+}
+.ds-ticket__price { font-weight: 600; text-align: right; }
+.ds-ticket__row { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 8px; font-size: var(--text-ds-label); color: var(--color-ink-2); }
+.ds-ticket__row b { margin-left: auto; color: var(--color-ink); font-weight: 700; text-align: right; }
+.ds-ticket__code { grid-column: 1 / -1; font-size: var(--text-ds-caption); color: var(--color-ink-2); }
+.ds-ticket--print { transform-origin: top center; animation: ds-print var(--duration-ticket) var(--ease-ticket) both; }
+@keyframes ds-print { from { transform: translateY(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ---------- Site shell: header, demo strip, footer (Sprint 5b) ---------- */
+.ds-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background: var(--color-ink);
+  color: var(--color-on-ink);
+  border-bottom: 1px solid rgb(255 255 255 / 0.12);
+}
+/* Same width as the old .container-shell so edges line up until Sprint 5e unifies every container at 1120px */
+.ds-header,
+.ds-footer { --ds-shell-width: min(1180px, calc(100% - 34px)); }
+@media (min-width: 640px) { .ds-header, .ds-footer { --ds-shell-width: min(1180px, calc(100% - 48px)); } }
+.ds-header__bar { display: flex; align-items: center; gap: 8px; width: var(--ds-shell-width); height: 64px; margin: 0 auto; }
+.ds-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--target-min);
+  color: var(--color-on-ink);
+  font-size: var(--text-ds-h3);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+.ds-header__nav { display: none; align-items: center; gap: 4px; margin-left: auto; }
+.ds-header__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target-min);
+  padding: 0 12px;
+  border-bottom: 2px solid transparent;
+  color: var(--color-on-ink);
+  font-size: var(--text-ds-body);
+  text-decoration: none;
+}
+.ds-header__link:hover { border-bottom-color: var(--color-on-ink-muted); }
+/* the current page is shown by weight AND an underline, never by colour alone */
+.ds-header__link[aria-current="page"] { border-bottom-color: var(--color-ticket); font-weight: 700; }
+.ds-header__cta { display: none; margin-left: 8px; }
+.ds-header__menu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--target-min);
+  height: var(--target-min);
+  margin-left: auto;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-on-ink);
+  cursor: pointer;
+}
+.ds-header__panel { display: grid; gap: 4px; width: var(--ds-shell-width); margin: 0 auto; padding: 8px 0 16px; border-top: 1px solid rgb(255 255 255 / 0.12); }
+.ds-header__panel .ds-header__link { min-height: 48px; border-bottom: 0; border-left: 3px solid transparent; }
+.ds-header__panel .ds-header__link[aria-current="page"] { border-left-color: var(--color-ticket); }
+.ds-header__panel .ds-btn { margin-top: 8px; }
+/* 960px: the desktop navigation replaces the menu button (MASTER section 3.3) */
+@media (min-width: 960px) {
+  .ds-header__bar { gap: 24px; }
+  .ds-header__nav { display: flex; }
+  .ds-header__cta { display: inline-flex; }
+  .ds-header__menu,
+  .ds-header__panel { display: none; }
+}
+
+.ds-demo-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-surface);
+  color: var(--color-ink-muted);
+  font-size: var(--text-ds-caption);
+  line-height: 1.45;
+  text-align: center;
+}
+.ds-demo-strip svg { flex: none; }
+
+.ds-footer { background: var(--color-ink); color: var(--color-on-ink); }
+.ds-footer__inner { width: var(--ds-shell-width); margin: 0 auto; }
+.ds-footer__cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 32px 0; border-bottom: 1px solid rgb(255 255 255 / 0.12); }
+.ds-footer__cta-title { margin: 0 0 4px; font-size: var(--text-ds-h2); font-weight: 650; line-height: 1.2; color: var(--color-on-ink); }
+.ds-footer__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; padding: 40px 0 32px; }
+.ds-footer__title { display: block; margin: 0 0 8px; font-size: var(--text-ds-label); font-weight: 650; color: var(--color-on-ink); }
+.ds-footer__text { max-width: 44ch; margin: 0; color: var(--color-on-ink-muted); font-size: var(--text-ds-label); line-height: 1.55; }
+.ds-footer__list { display: grid; margin: 0; padding: 0; list-style: none; }
+.ds-footer__link { display: inline-flex; align-items: center; min-height: var(--target-min); color: var(--color-on-ink); font-size: var(--text-ds-label); text-decoration: none; }
+.ds-footer__link:hover { text-decoration: underline; }
+.ds-footer__bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 16px; padding: 8px 0 16px; border-top: 1px solid rgb(255 255 255 / 0.12); color: var(--color-on-ink-muted); font-size: var(--text-ds-caption); }
+@media (min-width: 960px) {
+  .ds-footer__grid { grid-template-columns: 1.4fr 1fr 1fr; gap: 48px; }
+}
+
+/* ---------- reduced motion: no spinning, no printing ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .ds-btn { transition: none; }
+  .ds-btn__spinner { animation: none; }
+  .ds-ticket--print { animation: none; }
+}

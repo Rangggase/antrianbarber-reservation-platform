@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router';
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { anyApiMode } from '../api/config';
 import { bookingDateWib } from '../api/bookings';
+import { Button } from '../ui';
 import {
   StaffApiError, addTimeOff, clearSession, fetchBarbers, fetchSchedule, readSession, removeTimeOff, saveSchedule,
   type BarberOption, type Interval, type ScheduleView,
@@ -76,7 +77,6 @@ export default function StaffSchedulePage() {
     <div className="staff-dash-head">
       <div><p className="staff-eyebrow">ADMIN</p><h1 id="staff-schedule-title">Jadwal dan cuti</h1>
         <p className="staff-muted">Jam kerja mingguan (WIB) menentukan slot yang bisa dipesan. Perubahan tidak mengubah reservasi yang sudah ada.</p></div>
-      <Link className="button button-outline-dark" to="/staff"><ArrowLeft size={16} aria-hidden="true" /> Antrean</Link>
     </div>
     <div className="staff-toolbar">
       <div className="staff-field"><label htmlFor="schedule-barber">Barber</label>
@@ -107,7 +107,7 @@ export default function StaffSchedulePage() {
             </div>
           </li>)}
         </ul>
-        <button type="button" className="button button-gold" disabled={busy} onClick={() => run(async () => { await saveSchedule(session.token, view.barber_id, draft); }, `Jadwal ${view.barber_name} disimpan.`)}>Simpan jadwal</button>
+        <Button variant="primary" disabled={busy} onClick={() => run(async () => { await saveSchedule(session.token, view.barber_id, draft); }, `Jadwal ${view.barber_name} disimpan.`)}>Simpan jadwal</Button>
       </section>
 
       <section className="staff-report-block" aria-label="Cuti">
@@ -123,8 +123,8 @@ export default function StaffSchedulePage() {
           <div className="staff-field"><label htmlFor="off-start">Mulai</label><input id="off-start" type="date" value={offStart} min={todayWib()} onChange={(e) => e.target.value && setOffStart(e.target.value)} /></div>
           <div className="staff-field"><label htmlFor="off-end">Sampai</label><input id="off-end" type="date" value={offEnd} min={offStart} onChange={(e) => e.target.value && setOffEnd(e.target.value)} /></div>
           <div className="staff-field"><label htmlFor="off-reason">Alasan (opsional)</label><input id="off-reason" maxLength={180} value={offReason} onChange={(e) => setOffReason(e.target.value)} /></div>
-          <button type="button" className="button button-outline-dark staff-refresh" disabled={busy}
-            onClick={() => run(async () => { await addTimeOff(session.token, view.barber_id, offStart, offEnd, offReason); setOffReason(''); }, 'Cuti ditambahkan.')}>Tambah cuti</button>
+          <Button variant="secondary" className="staff-refresh" disabled={busy}
+            onClick={() => run(async () => { await addTimeOff(session.token, view.barber_id, offStart, offEnd, offReason); setOffReason(''); }, 'Cuti ditambahkan.')}>Tambah cuti</Button>
         </div>
       </section>
     </>}

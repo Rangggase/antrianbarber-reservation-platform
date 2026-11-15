@@ -1,6 +1,8 @@
+import { lazy, Suspense } from 'react';
 import { Outlet, Route, Routes } from 'react-router';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import DemoStrip from './components/DemoStrip';
 import RouteScrollManager from './components/RouteScrollManager';
 import HomePage from './pages/HomePage';
 import ServicesPage from './pages/ServicesPage';
@@ -19,11 +21,15 @@ import './styles/routes.css';
 import './styles/premium-v21d.css';
 import './styles/qa-mobile-fix.css';
 
+// Dev-only kitchen sink for the new design system; the constant-false branch is dropped from production builds.
+const UiKitPage = import.meta.env.DEV ? lazy(() => import('./pages/UiKitPage')) : null;
+
 function CustomerLayout() {
   return <>
     <a href="#main" className="skip-link">Langsung ke konten</a>
     <RouteScrollManager />
     <Header />
+    <DemoStrip />
     <main id="main" tabIndex={-1}><Outlet /></main>
     <Footer />
   </>;
@@ -36,6 +42,7 @@ export default function App() {
       <Route path="reports" element={<StaffReportsPage />} />
       <Route path="schedule" element={<StaffSchedulePage />} />
     </Route>
+    {UiKitPage && <Route path="ui-kit" element={<Suspense fallback={null}><UiKitPage /></Suspense>} />}
     <Route element={<CustomerLayout />}>
     <Route index element={<HomePage />} />
     <Route path="layanan" element={<ServicesPage />} />

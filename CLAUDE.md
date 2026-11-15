@@ -20,13 +20,16 @@ npm ci
 npm run dev        # http://localhost:5173
 npm run build      # tsc -b && vite build
 npm run lint       # oxlint (hanya warning yang diketahui)
-npx playwright test --project=chromium --workers=1   # 19 tes baseline, mode demo
-npm run e2e:staff                        # 13 tes area staf (API di-mock)
+npx playwright test --project=chromium --workers=1   # 29 tes baseline (navigasi, booking demo, shell), mode demo
+npm run e2e:staff                        # 14 tes area staf (API di-mock)
+npm run e2e:ui                           # 12 tes sistem desain di /ui-kit (hanya ada di dev)
+npm run check:contrast                   # kontras semua pasangan token (32 pasangan); gagal bila ada yang di bawah WCAG
 ```
 
 ## Struktur
 - `backend/app/api/reservations.py` — router tipis; aturan bisnis di `backend/app/services/booking_service.py`, model request/response di `schemas.py`
 - Staf: `backend/app/api/staff.py` (router), `services/staff_service.py` (alur status + nomor antrean), `security/passwords.py` (scrypt), `security/staff_auth.py` (JWT HS256, secret `STAFF_JWT_SECRET` BEDA dari `BOOKING_TOKEN_SECRET`). User dimuat ulang tiap request, jadi menonaktifkan akun langsung berlaku. Frontend: `src/api/staff.ts`, `pages/StaffLoginPage.tsx`, `pages/StaffDashboardPage.tsx`, route `/staff` dan `/staff/login` (token di sessionStorage).
+- Sistem desain baru (Sprint 5, rencana di `design-system/MASTER.md`): token di `frontend/src/styles/tokens.css` (SATU-SATUNYA tempat nilai warna mentah), komponen di `frontend/src/ui/` (`ds-` prefix, opt-in; halaman lama belum memakainya sampai 5b-5d), kit dev-only di `/ui-kit`. Komponen baru hanya memakai `var(--...)`; jangan menambah hex/`rgb()`/`!important`, teks <13px, atau target <44px. Aturan responsif harus mengikuti aturan dasar komponen yang sama di `ui.css` (urutan sumber menentukan pemenang). Header, strip demo, dan Footer sudah memakai komponen `ds-` (Sprint 5b); breakpoint navigasi 960px ada di `ui.css`, dan tidak ada utilitas responsif Tailwind di `src/` (jangan menambahkannya). Galat baca yang tampil ke pelanggan lewat `src/api/loadError.ts` (kalimat Indonesia biasa; detail teknis hanya ke console). Teks pelanggan tidak boleh memuat istilah teknis (PostgreSQL, FastAPI, HTTP, "Failed to fetch") atau label Inggris.
 - Fitur admin: laporan (`services/report_service.py`, halaman `/staff/reports`) dan jadwal/cuti (`services/schedule_service.py`, `/staff/schedule`; cuti memblokir booking baru di `booking_service.available_starts`). Dokumentasi sistem: `docs/ARCHITECTURE.md` dan `docs/DATABASE.md` (diagram Mermaid; perbarui bila skema atau alur berubah).
 - Nomor antrean diberikan saat pertama `confirmed`, per barber per hari WIB; pemberiannya diserialkan dengan kunci baris barber (`FOR NO KEY UPDATE`) dan dijaga indeks unik `uq_bookings_barber_local_day_queue`. Jangan hapus kuncinya: tanpa itu konfirmasi serentak saling kalah dan gagal 409.
 - Tes Playwright memakai mock API yang menulis header CORS sendiri; kecocokan CORS nyata hanya dibuktikan tes backend (`test_cors_preflight_*`).

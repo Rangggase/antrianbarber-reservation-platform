@@ -115,7 +115,7 @@ sequenceDiagram
 | --- | --- | --- |
 | Backend, cepat | pytest + SQLite in-memory | Aturan bisnis, keamanan, format error, laporan, jadwal |
 | Backend, database asli | pytest + PostgreSQL (`*_test`) | Exclusion constraint, indeks unik, migrasi bolak-balik, balapan konkurensi |
-| Frontend | Playwright (Chromium) | Alur demo (19), area staf (13), build produksi memakai API (3), mock API (5) |
+| Frontend | Playwright (Chromium) | Alur demo dan shell (29), area staf (14), build produksi memakai API (3), mock API (5), sistem desain (12) |
 | CI | GitHub Actions | pytest (SQLite + PostgreSQL), lint dan build frontend |
 
 Tes Playwright memakai mock API yang menulis header CORS sendiri, jadi kecocokan CORS nyata hanya dibuktikan tes backend.
@@ -127,4 +127,4 @@ Tes Playwright memakai mock API yang menulis header CORS sendiri, jadi kecocokan
 - Token staf disimpan di `sessionStorage` (rentan terhadap XSS bila ada celah injeksi).
 - Nomor HP disimpan apa adanya; belum ada penghapusan otomatis. Gunakan data fiktif.
 - Belum ada notifikasi, pembayaran, atau deployment publik; CI belum pernah dijalankan di GitHub.
-- Skor Lighthouse dan hasil UAT berasal dari rilis frontend v2.1e.
+- Skor Lighthouse diukur ulang pada 15 November 2026 (setelah Sprint 5); hasil UAT masih berasal dari rilis frontend v2.1e.

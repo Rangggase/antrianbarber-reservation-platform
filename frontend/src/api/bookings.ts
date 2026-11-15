@@ -105,6 +105,9 @@ export function saveApiTickets(items: StoredApiTicket[]): boolean {
 }
 
 // === CORE API FUNCTIONS ===
+/** Used whenever a booking may or may not have been saved: never invite a blind retry. */
+const UNCERTAIN = 'Status pemesanan belum pasti. Periksa kembali sebelum memesan ulang agar tidak terjadi pemesanan ganda.';
+
 function baseUrl(): string {
   const raw: unknown = import.meta.env.VITE_API_BASE_URL;
   if (typeof raw !== 'string') throw new BookingApiError('URL backend belum dikonfigurasi.', 0);
@@ -157,7 +160,7 @@ async function request(
         /* keep the generic message */
       }
       throw new BookingApiError(
-        detail || `Backend mengembalikan HTTP ${response.status}.`,
+        detail || 'Server sedang bermasalah. Coba lagi beberapa saat lagi.',
         response.status
       );
     }
@@ -166,7 +169,7 @@ async function request(
       return (await response.json()) as unknown;
     } catch {
       throw new BookingApiError(
-        'Backend berhasil merespons tetapi data tiket tidak dapat dibaca. Periksa PostgreSQL sebelum mengulang.',
+        UNCERTAIN,
         response.status,
         method === 'POST' && !token
       );
@@ -177,13 +180,13 @@ async function request(
     // For POST /bookings: network timeout may occur after the backend already committed.
     const uncertain = method === 'POST' && !token;
     const reason = controller.signal.aborted
-      ? 'Permintaan melebihi 10 detik.'
-      : 'Gagal menghubungi FastAPI.';
+      ? 'Server terlalu lama merespons.'
+      : 'Tidak dapat terhubung ke server.';
 
     throw new BookingApiError(
       `${reason}${
         uncertain
-          ? ' Status transaksi belum pasti; periksa database sebelum membuat ulang.'
+          ? ` ${UNCERTAIN}`
           : ''
       }`,
       0,
@@ -197,7 +200,7 @@ async function request(
 function requireBooking(value: unknown, context: string): BookingView {
   if (!isBooking(value)) {
     throw new BookingApiError(
-      `Format respons ${context} tidak sesuai kontrak backend.`,
+      context === 'pembuatan tiket' ? UNCERTAIN : 'Data balasan server tidak dapat dibaca. Coba lagi nanti.',
       0,
       context === 'pembuatan tiket'
     );
@@ -211,7 +214,7 @@ export async function createApiBooking(body: BookingPayload): Promise<StoredApiT
 
   if (!isRecord(raw) || typeof raw.access_token !== 'string' || raw.access_token.length < 16) {
     throw new BookingApiError(
-      'Tiket mungkin tersimpan tetapi access_token tidak ditemukan. Jangan langsung mengulang; periksa database.',
+      UNCERTAIN,
       0,
       true
     );
@@ -223,7 +226,7 @@ export async function createApiBooking(body: BookingPayload): Promise<StoredApiT
     Date.parse(view.starts_at) !== Date.parse(body.starts_at)
   ) {
     throw new BookingApiError(
-      'Respons tiket berbeda dari pilihan awal. Periksa database sebelum mengulang.',
+      UNCERTAIN,
       0,
       true
     );
@@ -246,7 +249,7 @@ export async function getApiBooking(ticket: StoredApiTicket): Promise<BookingVie
   const view = requireBooking(raw, 'detail tiket');
 
   if (view.reference_code !== ticket.reference_code) {
-    throw new BookingApiError('Kode tiket backend tidak cocok.', 0);
+    throw new BookingApiError('Data tiket dari server tidak cocok. Coba lagi nanti.', 0);
   }
   return view;
 }
@@ -260,7 +263,7 @@ export async function cancelApiBooking(ticket: StoredApiTicket): Promise<Booking
   const view = requireBooking(raw, 'pembatalan');
 
   if (view.reference_code !== ticket.reference_code || view.status !== 'cancelled') {
-    throw new BookingApiError('Pembatalan belum terkonfirmasi oleh API.', 0);
+    throw new BookingApiError('Pembatalan belum terkonfirmasi server. Periksa status tiket Anda.', 0);
   }
   return view;
 }
@@ -268,13 +271,13 @@ export async function cancelApiBooking(ticket: StoredApiTicket): Promise<Booking
 export function describeApiError(err: unknown): string {
   if (err instanceof BookingApiError) {
     if (err.status === 409) {
-      return `Konflik reservasi (HTTP 409): ${err.message}. Perbarui pilihan waktu atau periksa status tiket.`;
+      return `Reservasi tidak bisa dibuat: ${err.message.replace(/[.!]+$/, '')}. Pilih waktu lain atau periksa tiket Anda.`;
     }
     if (err.status === 403) {
-      return 'Token akses tiket ditolak (HTTP 403). Token mungkin tidak lagi berlaku setelah secret backend diubah.';
+      return 'Akses ke tiket ditolak. Tiket mungkin sudah tidak berlaku; coba pesan ulang.';
     }
-    if (err.status === 404) return 'Tiket tidak ditemukan di PostgreSQL (HTTP 404).';
-    if (err.status === 422) return `Data ditolak backend (HTTP 422): ${err.message}`;
+    if (err.status === 404) return 'Tiket tidak ditemukan.';
+    if (err.status === 422) return `Data belum valid: ${err.message}`;
     return err.message;
   }
   return 'Terjadi kesalahan pada proses reservasi.';

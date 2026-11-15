@@ -47,7 +47,11 @@ test('production build loads the service catalog from the API', async ({ page })
 test('production build shows an error state with retry when the API is down', async ({ page }) => {
   await page.route('http://127.0.0.1:8000/api/v1/**', route => route.abort());
   await page.goto('/layanan');
-  await expect(page.getByRole('alert').filter({ hasText: 'Data layanan belum dapat dimuat' })).toBeVisible();
+  const alert = page.getByRole('alert').filter({ hasText: 'Data layanan belum dapat dimuat' });
+  await expect(alert).toBeVisible();
+  // a failed fetch is explained in plain words: never the browser's raw "Failed to fetch"
+  await expect(alert).toContainText('Tidak dapat terhubung ke server');
+  await expect(alert).not.toContainText('Failed to fetch');
   await expect(page.getByRole('button', { name: 'Coba lagi' })).toBeVisible();
 });
 
@@ -55,8 +59,8 @@ test('production build creates a booking through the API', async ({ page }) => {
   const calls = await mockApi(page);
   await page.goto('/reservasi');
   await page.getByRole('group', { name: 'Pilih layanan' }).getByRole('button', { name: /API Sentinel Cut/ }).click();
-  await page.getByRole('button', { name: 'Lanjutkan' }).click();
   await page.getByRole('group', { name: 'Pilih barber' }).getByRole('button', { name: /API Sentinel Barber/ }).click();
+  await page.getByRole('button', { name: 'Lanjutkan' }).click();
   await page.locator('#wizard-date').fill(tomorrow());
   const slot = page.getByRole('group', { name: 'Jam preferensi' }).getByRole('button', { name: '10:00' });
   await expect(slot).toBeVisible(); await slot.click();
@@ -64,8 +68,7 @@ test('production build creates a booking through the API', async ({ page }) => {
   await page.locator('#wizard-name').fill('Pelanggan Demo');
   await page.locator('#wizard-phone').fill('081299991234');
   await page.locator('input[type=checkbox]').check();
-  await page.getByRole('button', { name: 'Lanjutkan' }).click();
-  await page.getByRole('button', { name: 'Buat Tiket PostgreSQL' }).click();
+  await page.getByRole('button', { name: 'Ambil karcis' }).click();
   await expect(page.getByRole('dialog')).toContainText(code);
   expect(calls.created).toBe(1);
 });

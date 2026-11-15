@@ -1,0 +1,62 @@
+# Sesudah Sprint 5e — pengukuran rute pelanggan (mode demo, dev server, Chromium)
+# kolom: h1 (harus 1), overflow (px horizontal), smallText (teks <13px), smallTargets (kontrol <44px)
+390px /                          h1=1 overflow=0 smallText=0 smallTargets=0
+390px /layanan                   h1=1 overflow=0 smallText=0 smallTargets=0
+390px /barber                    h1=1 overflow=0 smallText=0 smallTargets=0
+390px /inspirasi                 h1=1 overflow=0 smallText=0 smallTargets=0
+390px /tentang                   h1=1 overflow=0 smallText=0 smallTargets=0
+390px /faq                       h1=1 overflow=0 smallText=0 smallTargets=0
+390px /reservasi                 h1=1 overflow=0 smallText=0 smallTargets=0
+390px /halaman-yang-tidak-ada    h1=1 overflow=0 smallText=0 smallTargets=0
+1440px /                          h1=1 overflow=0 smallText=0 smallTargets=1
+1440px /layanan                   h1=1 overflow=0 smallText=0 smallTargets=1
+1440px /barber                    h1=1 overflow=0 smallText=0 smallTargets=1
+1440px /inspirasi                 h1=1 overflow=0 smallText=0 smallTargets=1
+1440px /tentang                   h1=1 overflow=0 smallText=0 smallTargets=1
+1440px /faq                       h1=1 overflow=0 smallText=0 smallTargets=1
+1440px /reservasi                 h1=1 overflow=0 smallText=0 smallTargets=1
+1440px /halaman-yang-tidak-ada    h1=1 overflow=0 smallText=0 smallTargets=1
+320px /                          h1=1 overflow=0 smallText=0 smallTargets=0
+320px /layanan                   h1=1 overflow=0 smallText=0 smallTargets=0
+320px /barber                    h1=1 overflow=0 smallText=0 smallTargets=0
+320px /inspirasi                 h1=1 overflow=0 smallText=0 smallTargets=0
+320px /tentang                   h1=1 overflow=0 smallText=0 smallTargets=0
+320px /faq                       h1=1 overflow=0 smallText=0 smallTargets=0
+320px /reservasi                 h1=1 overflow=0 smallText=0 smallTargets=0
+320px /halaman-yang-tidak-ada    h1=1 overflow=0 smallText=0 smallTargets=0
+768px /                          h1=1 overflow=0 smallText=0 smallTargets=0
+768px /layanan                   h1=1 overflow=0 smallText=0 smallTargets=0
+768px /barber                    h1=1 overflow=0 smallText=0 smallTargets=0
+768px /inspirasi                 h1=1 overflow=0 smallText=0 smallTargets=0
+768px /tentang                   h1=1 overflow=0 smallText=0 smallTargets=0
+768px /faq                       h1=1 overflow=0 smallText=0 smallTargets=0
+768px /reservasi                 h1=1 overflow=0 smallText=0 smallTargets=0
+768px /halaman-yang-tidak-ada    h1=1 overflow=0 smallText=0 smallTargets=0
+# kontras (audit runtime; 4 temuan di 390/1440 adalah monogram tim di atas gradien yang tidak terbaca audit)
+## 1440
+--- contrast failures at 1440px: 4
+1.18:1 SPAN.team-portrait-number "0" [/barber /barber]
+1.28:1 SPAN.team-avatar-mark "RP" [/barber]
+1.28:1 SPAN.team-avatar-mark "NA" [/barber]
+1.28:1 SPAN.team-avatar-mark "DP" [/barber]
+## 390
+--- contrast failures at 390px: 4
+1.18:1 SPAN.team-portrait-number "0" [/barber /barber]
+1.28:1 SPAN.team-avatar-mark "RP" [/barber]
+1.28:1 SPAN.team-avatar-mark "NA" [/barber]
+1.28:1 SPAN.team-avatar-mark "DP" [/barber]
+# kontrol <44px tersisa (1440): tombol header 'Ambil antrean' 40px, mode desktop (diizinkan MASTER §4)
+1440 /:
+  a.ds-btn 144x40 "Ambil antrean"
+1440 /layanan:
+  a.ds-btn 144x40 "Ambil antrean"
+1440 /barber:
+  a.ds-btn 144x40 "Ambil antrean"
+1440 /inspirasi:
+  a.ds-btn 144x40 "Ambil antrean"
+1440 /tentang:
+  a.ds-btn 144x40 "Ambil antrean"
+1440 /faq:
+  a.ds-btn 144x40 "Ambil antrean"
+1440 /reservasi:
+  a.ds-btn 144x40 "Ambil antrean"

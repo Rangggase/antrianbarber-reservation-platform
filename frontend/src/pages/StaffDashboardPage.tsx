@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, Navigate } from 'react-router';
-import { LogOut, Phone, RefreshCw } from 'lucide-react';
+import { LogOut, RefreshCw } from 'lucide-react';
 import { anyApiMode } from '../api/config';
-import { slotLabel } from '../api/availability';
 import { bookingDateWib } from '../api/bookings';
-import { formatRupiah } from '../data/services';
 import {
   ACTION_LABEL, STATUS_LABEL, StaffApiError, changeStatus, clearSession, fetchBarbers, fetchQueue, readSession,
   type BarberOption, type BookingStatus, type Queue, type StaffBooking, type StaffSession,
 } from '../api/staff';
+import { Button } from '../ui';
+import { NowPanel } from '../components/staff/NowPanel';
+import { QueueRow } from '../components/staff/QueueRow';
 
 const AUTO_REFRESH_MS = 30_000;
 const CONFIRM_ACTIONS = new Set<BookingStatus>(['cancelled', 'no_show']);
@@ -18,6 +19,16 @@ function countStatuses(bookings: StaffBooking[]): Record<string, number> {
   const counts: Record<string, number> = { pending: 0, confirmed: 0, in_service: 0, completed: 0, cancelled: 0, no_show: 0 };
   for (const b of bookings) counts[b.status] = (counts[b.status] ?? 0) + 1;
   return counts;
+}
+
+/** One "Sekarang" card per barber in the loaded queue: who is in service and who is next. */
+function nowPanels(bookings: StaffBooking[]) {
+  const barbers = new Map<number, string>();
+  for (const b of bookings) barbers.set(b.barber_id, b.barber_name);
+  return Array.from(barbers, ([id, name]) => {
+    const own = bookings.filter(b => b.barber_id === id);
+    return { id, name, current: own.find(b => b.status === 'in_service'), next: own.find(b => b.status === 'confirmed') };
+  });
 }
 
 type Result = { viewKey: string; queue?: Queue; error?: string };
@@ -87,6 +98,7 @@ export default function StaffDashboardPage() {
   const current = result.viewKey === viewKey ? result : { viewKey };
   const queue = current.queue;
   const loading = !queue && !current.error;
+  const isToday = date === todayWib();
 
   async function act(booking: StaffBooking, status: BookingStatus) {
     if (!session || lock.current) return;
@@ -109,6 +121,8 @@ export default function StaffDashboardPage() {
     }
   }
 
+  const panels = queue && isToday ? nowPanels(queue.bookings) : [];
+
   return <section className="staff-dashboard" aria-labelledby="staff-dash-title">
     <div className="staff-dash-head">
       <div>
@@ -117,9 +131,7 @@ export default function StaffDashboardPage() {
         <p className="staff-muted">{session.user.full_name}{queue && !isAdmin && queue.bookings[0] ? ` · ${queue.bookings[0].barber_name}` : ''}</p>
       </div>
       <div className="staff-head-actions">
-        {isAdmin && <Link className="button button-outline-dark" to="/staff/reports">Laporan</Link>}
-        {isAdmin && <Link className="button button-outline-dark" to="/staff/schedule">Jadwal</Link>}
-        <button type="button" className="button button-outline-dark" onClick={() => logout()}><LogOut size={16} aria-hidden="true" /> Keluar</button>
+        <Button variant="secondary" onClick={() => logout()}><LogOut size={16} aria-hidden="true" /> Keluar</Button>
       </div>
     </div>
 
@@ -131,8 +143,12 @@ export default function StaffDashboardPage() {
           <option value="">Semua barber</option>
           {barbers.map((b) => <option key={b.id} value={b.id}>{b.full_name}</option>)}
         </select></div>}
-      <button type="button" className="button button-outline-dark staff-refresh" onClick={() => setReload((n) => n + 1)}><RefreshCw size={16} aria-hidden="true" /> Muat ulang</button>
+      <Button variant="secondary" className="staff-refresh" onClick={() => setReload((n) => n + 1)}><RefreshCw size={16} aria-hidden="true" /> Muat ulang</Button>
     </div>
+
+    {panels.length > 0 && <div className="staff-now-grid">
+      {panels.map((p) => <NowPanel key={p.id} barberName={p.name} current={p.current} next={p.next} busy={busyRef !== null} onAct={act} />)}
+    </div>}
 
     {queue && <ul className="staff-counts" aria-label="Ringkasan status">
       {(Object.keys(STATUS_LABEL) as BookingStatus[]).map((s) => <li key={s} className={`staff-chip status-${s}`}><b>{queue.counts[s] ?? 0}</b> {STATUS_LABEL[s]}</li>)}
@@ -144,20 +160,7 @@ export default function StaffDashboardPage() {
     {queue && queue.bookings.length === 0 && <p className="staff-empty" role="status">Belum ada reservasi pada tanggal ini.</p>}
 
     {queue && queue.bookings.length > 0 && <ol className="staff-list" aria-label="Daftar reservasi">
-      {queue.bookings.map((b) => <li key={b.reference_code} className={`staff-row status-${b.status}`}>
-        <div className="staff-time"><strong>{slotLabel(b.starts_at)}</strong><small>{b.queue_number ? `Antrean #${b.queue_number}` : 'Belum diberi nomor'}</small></div>
-        <div className="staff-info">
-          <strong>{b.customer_name}</strong>
-          <a href={`tel:${b.customer_phone}`} className="staff-phone"><Phone size={13} aria-hidden="true" /> {b.customer_phone}</a>
-          <span>{b.service_name} · {formatRupiah(b.price_idr)}{isAdmin ? ` · ${b.barber_name}` : ''}</span>
-          <small className="staff-ref">{b.reference_code}</small>
-        </div>
-        <div className="staff-actions">
-          <span className={`staff-badge status-${b.status}`}>{STATUS_LABEL[b.status]}</span>
-          {b.allowed_next.map((next) => <button key={next} type="button" className={`staff-action action-${next}`} disabled={busyRef !== null}
-            aria-label={`${ACTION_LABEL[next]} — ${b.customer_name}`} onClick={() => act(b, next)}>{busyRef === b.reference_code ? '…' : ACTION_LABEL[next]}</button>)}
-        </div>
-      </li>)}
+      {queue.bookings.map((b) => <QueueRow key={b.reference_code} booking={b} isAdmin={isAdmin} busyRef={busyRef} onAct={act} />)}
     </ol>}
   </section>;
 }

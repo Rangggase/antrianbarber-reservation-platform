@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const services = [{ id:1, code:'classic', name:'Classic Haircut', description:'Demo service', duration_minutes:45, price_idr:55000 },
+const services = [{ id:1, code:'classic', name:'Potong Klasik', description:'Demo service', duration_minutes:45, price_idr:55000 },
                   { id:2, code:'fade', name:'Fade & Taper', description:'Demo fade', duration_minutes:60, price_idr:75000 }];
 const barbers = [{ id:1, code:'raka', full_name:'Raka Pratama', specialty:'Fade', bio:'Demo barber' },
                  { id:2, code:'naufal', full_name:'Naufal Ardi', specialty:'Classic', bio:'Demo barber' }];
@@ -33,29 +33,32 @@ function tomorrow() {
 test('memuat slot API WIB sesuai barber dan layanan; pergantian barber membersihkan waktu', async ({ page }) => {
   await mockApi(page);
   await page.goto('/reservasi');
-  await page.getByRole('group', { name:'Pilih layanan' }).getByRole('button', { name:/Classic Haircut/ }).click();
-  await page.getByRole('button', { name:'Lanjutkan' }).click();
+  await page.getByRole('group', { name:'Pilih layanan' }).getByRole('button', { name:/Potong Klasik/ }).click();
   await page.getByRole('group', { name:'Pilih barber' }).getByRole('button', { name:/Raka Pratama/ }).click();
+  await page.getByRole('button', { name:'Lanjutkan' }).click();
   await page.locator('#wizard-date').fill(tomorrow());
   const slots = page.getByRole('group', { name:'Jam preferensi' });
   await expect(slots.getByRole('button',{ name:'10:00' })).toBeVisible();
   await slots.getByRole('button', { name:'10:00' }).click();
+  // Changing the barber happens on step 1, so go back first.
+  await page.getByRole('button', { name:'Kembali' }).click();
   await page.getByRole('group', { name:'Pilih barber' }).getByRole('button', { name:/Naufal Ardi/ }).click();
-  await expect(page.getByText('Tidak ada slot API untuk pilihan ini.')).toBeVisible();
   await page.getByRole('button', { name:'Lanjutkan' }).click();
-  await expect(page.getByRole('alert').filter({ hasText: 'Pilih jam yang tersedia dari API.' })).toBeVisible();
+  await expect(page.getByText('Tidak ada jam tersedia untuk pilihan ini.')).toBeVisible();
+  await page.getByRole('button', { name:'Lanjutkan' }).click();
+  await expect(page.getByRole('alert').filter({ hasText: 'Pilih salah satu jam yang tersedia.' })).toBeVisible();
 });
 
 test('saat API availability gagal, slot tidak diambil dari data statis', async ({ page }) => {
   await mockApi(page);
   await page.route('http://127.0.0.1:8000/api/v1/availability?**', route => route.fulfill({ status:503, json:{ detail:'Unavailable' }, headers: { 'access-control-allow-origin':'*' } }));
   await page.goto('/reservasi');
-  await page.getByRole('group', { name:'Pilih layanan' }).getByRole('button', { name:/Classic Haircut/ }).click();
-  await page.getByRole('button', { name:'Lanjutkan' }).click();
+  await page.getByRole('group', { name:'Pilih layanan' }).getByRole('button', { name:/Potong Klasik/ }).click();
   await page.getByRole('group', { name:'Pilih barber' }).getByRole('button', { name:/Raka Pratama/ }).click();
+  await page.getByRole('button', { name:'Lanjutkan' }).click();
   await page.locator('#wizard-date').fill(tomorrow());
-  await expect(page.getByRole('alert').filter({ hasText:'Slot API gagal dimuat' })).toBeVisible();
+  await expect(page.getByRole('alert').filter({ hasText:'Jam belum bisa dimuat' })).toBeVisible();
   await expect(page.getByRole('group', { name:'Jam preferensi' })).toHaveCount(0);
   await page.getByRole('button', { name:'Lanjutkan' }).click();
-  await expect(page.getByRole('heading', { name:'Pilih barber & jadwal.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name:'Pilih waktu.' })).toBeVisible();
 });
